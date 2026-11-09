@@ -34,7 +34,9 @@ PPY = 252 / 5
 
 
 def evaluate(pred, tt, ii, tag, q=0.10, step=5):
-    d = pd.DataFrame({'t': tt, 'p': pred, 'y': Y2[tt, ii]}).dropna()
+    # i 是股票在面板里的列索引，跨日稳定；用它算名单更替（不能用 DataFrame 行索引，
+    # 行索引每天都不一样，会让每期都算成"100% 更替"——2026-11-09 修）
+    d = pd.DataFrame({'t': tt, 'i': ii, 'p': pred, 'y': Y2[tt, ii]}).dropna()
     days = np.sort(d['t'].unique())[::step]        # 5 日调仓：只在每 5 个交易日取样
     rows, prev = [], None
     for t in days:
@@ -45,7 +47,7 @@ def evaluate(pred, tt, ii, tag, q=0.10, step=5):
         bot = gg.nsmallest(n, 'p')
         keep = gg.drop(bot.index)
         ex = keep['y'].mean() - gg['y'].mean()
-        cur = set(bot.index)
+        cur = set(bot['i'])
         to = 0.0 if prev is None else len(cur - prev) / n
         rows.append((t, ex, to, n))
         prev = cur
@@ -80,7 +82,7 @@ for seg, key in [('meta 段 2024', 'me'), ('dev 段 2025H1', 'te')]:
 tt = np.concatenate([p['tt_me'], p['tt_te']])
 ii = np.concatenate([p['ii_me'], p['ii_te']])
 pr = np.concatenate([p['p_st_me'], p['p_st_te']])
-d = pd.DataFrame({'t': tt, 'p': pr, 'y': Y2[tt, ii]}).dropna()
+d = pd.DataFrame({'t': tt, 'i': ii, 'p': pr, 'y': Y2[tt, ii]}).dropna()
 d['yr'] = dates[d['t']].year
 print('分年（Ridge 元模型，年化超额，扣成本）：')
 for y, gg in d.groupby('yr'):
@@ -94,7 +96,7 @@ for y, gg in d.groupby('yr'):
         b = g.nsmallest(n, 'p')
         keep = g.drop(b.index)
         ex = keep['y'].mean() - g['y'].mean()
-        cur = set(b.index)
+        cur = set(b['i'])
         to = 0.0 if prev is None else len(cur - prev) / n
         rows.append(ex - to * 0.10 * 2 * COST)
         prev = cur
@@ -102,5 +104,6 @@ for y, gg in d.groupby('yr'):
         rows = np.array(rows)
         print('  %d: %+6.2f%% /年（%d 期）' % (y, ((1 + rows).prod() ** (PPY / len(rows)) - 1) * 100, len(rows)))
 
-json.dump(out, open(f'{ROOT}/reports/screen_eval.json', 'w'), ensure_ascii=False, indent=1)
+json.dump(out, open(f'{ROOT}/reports/screen_eval.json', 'w', newline='\n'),
+          ensure_ascii=False, indent=1)
 print('\n已存 reports/screen_eval.json')
