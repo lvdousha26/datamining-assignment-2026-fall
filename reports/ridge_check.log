@@ -1,0 +1,39 @@
+meta 段 1148585 行 | G 对角 [1148585 1148585 1148585 1148585] | 条件数 17.8
+
+lambda          alpha 系数 [LGBM, TF, fac, 截距]                     meta IC    val IC    dev IC   dev固定zc
+0                   0 [0.05139, 0.02502, -0.01526, -0.0]        +0.10490  +0.12707  +0.12707  +0.12857
+1e-05              11 [0.0035, 0.0017, -0.00104, 0.00027]       +0.10490  +0.12707  +0.12707  +0.12857
+0.0001            115 [0.00349, 0.0017, -0.00104, 0.00027]      +0.10490  +0.12708  +0.12708  +0.12857
+0.001            1149 [0.00349, 0.00171, -0.00104, 0.00027]     +0.10491  +0.12712  +0.12712  +0.12861
+0.01            11486 [0.0034, 0.00175, -0.00101, 0.00027]      +0.10500  +0.12752  +0.12752  +0.12897
+0.1            114858 [0.0029, 0.00194, -0.0008, 0.00027]       +0.10548  +0.13050  +0.13050  +0.13163
+1             1148585 [0.00165, 0.00148, -9e-05, 0.00027]       +0.10544  +0.13975  +0.13975  +0.13989
+
+=== 结论 ===
+lam<=1e-2 时 dev IC 最大变化 0.000446 | 系数最大变化 0.047990
+逐段 zc vs 固定 meta 参数 zc 的 dev IC 差 0.001494（ OLS 口径下）
+Traceback (most recent call last):
+  File "D:\quant\scripts\ridge_check.py", line 85, in <module>
+    json.dump({'ridge_lambda': 1e-3, 'note': 'lam*len(A); 截距不惩罚',
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'ols_coef': base.coef, 'mu': MU, 'sd': SD,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'dev_ic_ols': base.ic_te, 'dev_ic_ridge': float(d[d.lam == 1e-3].ic_te.iloc[0])},
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              open(f'{ROOT}/reports/ridge_config.json', 'w'), indent=2)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\__init__.py", line 181, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\encoder.py", line 435, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\encoder.py", line 409, in _iterencode_dict
+    yield from chunks
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\encoder.py", line 328, in _iterencode_list
+    yield from chunks
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\encoder.py", line 442, in _iterencode
+    o = _default(o)
+  File "C:\Users\25097\.workbuddy\binaries\python\versions\3.13.12\Lib\json\encoder.py", line 182, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type float32 is not JSON serializable

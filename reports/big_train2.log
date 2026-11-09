@@ -1,0 +1,40 @@
+数组 (2614, 5378, 30) | 5378 只 | 2016-01-12 ~ 2026-10-22 | 覆盖 71.5%
+{'tr': 1453, 'me': 242, 'va': 242, 'te': 677} （交易日数）
+样本 训练 890491（291 日）| 2022 1037355 | 2023 1129224 | 2024+ 3393014
+
+=== ① 因子 rank 合成（ICIR 加权，只用 <2022）===
+D:\quant\scripts\big_train.py:101: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  c = sps.spearmanr(v, yv).correlation
+  因子 IC: {np.str_('illiq20'): 0.0325, np.str_('overn5'): 0.0138, np.str_('overn20'): 0.0132, np.str_('kurt20'): 0.0007, np.str_('ret1'): -0.0143, np.str_('ret250'): -0.0162}
+  权重 top5: {np.str_('illiq20'): 0.541, np.str_('overn5'): 0.229, np.str_('overn20'): 0.22, np.str_('kurt20'): 0.011, np.str_('ret60'): 0.0}
+  因子合成 2022                  IC +0.0510  ICIR +0.51  NW-t +4.7
+  因子合成 2023                  IC +0.0753  ICIR +0.55  NW-t +4.6
+  因子合成 2024+                 IC +0.0411  ICIR +0.28  NW-t +4.1
+
+=== ② LightGBM（每 5 日采样，2022 早停）===
+  LGBM 6s 最优轮 175
+  LGBM 2023                  IC +0.1025  ICIR +0.79  NW-t +6.4
+  LGBM 2024+                 IC +0.0965  ICIR +0.68  NW-t +9.7
+
+=== ③ Transformer (RMSNorm+SwiGLU+dropout, 3 seed) ===
+    seed1 ep1 loss 0.04311 | 2022 IC +0.0928 | 37s
+    seed1 ep2 loss 0.03967 | 2022 IC +0.0949 | 37s
+    seed1 ep3 loss 0.03949 | 2022 IC +0.1027 | 48s
+    seed1 ep4 loss 0.03936 | 2022 IC +0.0899 | 49s
+    seed1 ep5 loss 0.03934 | 2022 IC +0.0958 | 47s
+    seed1 ep6 loss 0.03925 | 2022 IC +0.0940 | 47s
+    seed1 最优 2022 IC +0.1027
+    seed2 ep1 loss 0.04305 | 2022 IC +0.0777 | 47s
+    seed2 ep2 loss 0.03967 | 2022 IC +0.1012 | 48s
+    seed2 ep3 loss 0.03949 | 2022 IC +0.0908 | 62s
+    seed2 ep4 loss 0.03944 | 2022 IC +0.0964 | 127s
+    seed2 ep5 loss 0.03934 | 2022 IC +0.0919 | 125s
+    seed2 ep6 loss 0.03917 | 2022 IC +0.0951 | 123s
+    seed2 最优 2022 IC +0.1012
+    seed3 ep1 loss 0.04207 | 2022 IC +0.0877 | 125s
+    seed3 ep2 loss 0.03959 | 2022 IC +0.0917 | 164s
+    seed3 ep3 loss 0.03949 | 2022 IC +0.0821 | 131s
+    seed3 ep4 loss 0.03944 | 2022 IC +0.0951 | 135s
+    seed3 ep5 loss 0.03931 | 2022 IC +0.0873 | 128s
+    seed3 ep6 loss 0.03922 | 2022 IC +0.0966 | 136s
+    seed3 最优 2022 IC +0.0966

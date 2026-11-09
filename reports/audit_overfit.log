@@ -1,0 +1,31 @@
+训练子样本 300000 行 | OOS 评估 681562 行 / 136 日 | best_iter=110
+
+=== ① IS / OOS 衰减（已保存的正式 LGBM）===
+  训练集内 IC +0.1501 | 2024+ OOS IC +0.1005 | 衰减 33%
+
+=== ② 分年度 Stacking IC（用已落盘预测）===
+  2022  IC +0.1094  ICIR +1.13  日数 242
+  2023  IC +0.1122  ICIR +0.76  日数 242
+  2024  IC +0.1052  ICIR +0.73  日数 242
+  2025  IC +0.1069  ICIR +0.75  日数 243
+  2026  IC +0.1030  ICIR +0.58  日数 192
+
+=== ③ 安慰剂：训练标签逐日打乱（同超参、同样本）===
+  真标签 OOS IC +0.0998 | 打乱标签 OOS IC -0.0122 | 差 +0.1119  (4s)
+
+=== ④ 超参敏感度（8 组，同子样本 / 110 轮）===
+  leaves= 15 min_data=100 → OOS IC +0.0974
+  leaves= 15 min_data=500 → OOS IC +0.0973
+  leaves= 31 min_data=100 → OOS IC +0.0988
+  leaves= 31 min_data=500 → OOS IC +0.0989
+  leaves= 63 min_data=100 → OOS IC +0.0991
+  leaves= 63 min_data=500 → OOS IC +0.0993
+  leaves=127 min_data=100 → OOS IC +0.0994
+  leaves=127 min_data=500 → OOS IC +0.0997
+  OOS IC 范围 +0.0973 ~ +0.0997 | 标准差 0.0009 | 极差 0.0024 (15s)
+
+=== ⑤ 正式模型增益集中度 ===
+  Top10: Column_13 15.1%, Column_17 8.8%, Column_33 7.8%, Column_25 4.3%, Column_28 4.2%, Column_30 3.7%, Column_0 3.6%, Column_26 3.4%, Column_24 3.2%, Column_1 3.1%
+  Top5 占比 40.2% | Top10 占比 57.2%
+
+已存 reports/overfit_grid.csv

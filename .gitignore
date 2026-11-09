@@ -1,0 +1,49 @@
+# ===== 数据（20 GB，绝不入库）=====
+data/big/
+data/us/
+data/raw/
+data/*/raw_*/
+*.npz
+*.parquet
+*.pkl
+*.pkl.bak
+*.bak
+
+# 例外：微调示例数据（几 KB，要提交）
+!data/laya/*.csv
+
+# ===== 模型权重 =====
+checkpoints/*.pt
+checkpoints/*.txt
+checkpoints/*.bin
+checkpoints/*.safetensors
+runs/
+
+# ===== 运行日志（只留说明）=====
+logs/*.log
+logs/*.json
+logs/index.csv
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# ===== 编辑器 / 系统 =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 临时 =====
+*.tmp
+*.log.bak
+_t1.json
+probe.txt
+
+# 历史版本权重（v1，二进制，可复现）
+checkpoints_v1/*.pt

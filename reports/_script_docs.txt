@@ -1,0 +1,148 @@
+BASE|accounts.py           |
+BASE|asset_rot.py          |跨资产截面动量（无幸存者偏差、月频、散户可执行） 资产池(7)：沪深300 / 中证500 / 中证1000 / 红利全收益 / 黄金 / 纳指 / 国债指数 规则：动量排名 top N，且仅持动量>0 的资产（绝对动量过滤），其余现金 2%/年 成本：ETF 单边 10bp 注：黄金用COMEX代
+BASE|bottom_anatomy.py     |逐点解剖：公认的历史大底，这个信号抓到了吗？抓到时已经涨了多少？
+BASE|bottom_signal.py      |大跌到底部 + 横盘三个月 → 进攻 设计要点：不用价格历史分位（指数长期上行漂移会让分位失真），改用回撤/均线偏离 四组对照，看"横盘三个月"这一步是否真有增量
+BASE|brain_target.py       |尝试构造满足 WorldQuant BRAIN 标准的 alpha 标准：Sharpe>1.25(日频) / Turnover 1%-70%(年化) / Fitness>1.0 Fitness = Sharpe × sqrt(|Returns| / max(Turnover, 12.5%))
+BASE|brk.py                |测试：买入持有伯克希尔 / 段永平代理（苹果+茅台）/ 加进组合的效果
+BASE|bt1.py                |
+BASE|bt2.py                |
+BASE|bt3.py                |
+BASE|bt4.py                |
+BASE|bt6.py                |
+BASE|bt7.py                |
+BASE|bt8.py                |
+BASE|bt9.py                |
+BASE|capacity.py           |
+BASE|classic.py            |
+BASE|combine.py            |双层框架：横截面选股(alpha) x 时序择时(beta预算) 四组对照：纯beta / 纯择时 / 纯选股 / 双层
+BASE|crash_buy.py          |股灾抄底策略：99% 时间空仓，等崩盘买入 核心问题: 触发频率 x 单次收益 x 空仓机会成本
+BASE|crash_buy2.py         |股灾抄底 v2：带止盈/时限，真正实现"长期空仓等崩盘"
+BASE|crashes.py            |
+BASE|dennis_snipe.py       |A股丹尼斯(90/40)抢跑测试 1) 基础：距90日新高 δ 以内 → 次日突破概率 / 前向收益 2) 抢跑 vs 等突破：两套完整策略 3) 丹尼斯原版退出（跌破40日新低）vs 固定止损
+BASE|euphoria.py           |
+BASE|eval_s3.py            |策略③ 机构视角体检：完整指标 + 多资产beta回归归因 + 分类依据
+BASE|evaluate_live.py      |模拟盘评估：实际执行 vs 回测 用法：python evaluate_live.py 每月在 tracking.csv 追加一行（含实际权重与 nav），半年后跑一次。
+BASE|factor.py             |
+BASE|factor_lab.py         |研报 -> 假设 -> 算子 -> 因子：实验室 算子类别: 基本运算 / 各阶矩 / 相关性 / 图关系 / 频谱 / 掩码 数据: a_ohlc.pkl (2096只, 2018-2026, OHLCV)
+BASE|factor_lab2.py        |第二层：中性化 + 正交性 + 合成，检验哪些是真因子
+BASE|factor_lab3.py        |按 2025 年卖方研报复现：隔夜-日内分离系列因子 参考：东吴"日与夜的殊途同归"、东吴 RPV 四象限、中信建投隔夜-日内异象 数据：OHLCV 日线（2096只大中盘，2014-2026）
+BASE|factor_x.py           |横截面因子引擎 v2：用跳跃检测修复不复权数据，然后跑 IC / 分层
+BASE|fetch_panel.py        |抓全A面板 v3：curl 子进程（urllib 被拦）
+BASE|fetch_panel2.py       |面板 v2：扩池 + 行业字段 + 流通市值（用于历史市值代理）
+BASE|fetch_panel3.py       |面板 v3：新浪行情中心列表（市值/流通市值/PE/PB）+ 日线，扩池到市值前2000
+BASE|fx_compare.py         |策略③ 人民币口径 vs 各资产（考虑汇率） 方法：美元资产(纳指/黄金GC/BRK)价格×USDCNY中间价 → 人民币计价 纳指动量/MA125腿的信号在"人民币价格序列"上重算（空仓=持人民币现金，无汇率敞口） 数据：外汇局人民币中间价(currency_boc_safe)、y_*.json(
+BASE|global.py             |
+BASE|gold_btc.py           |黄金 / 比特币 / 新兴市场：单项表现 + 择时效果 + 加入组合
+BASE|improve.py            |
+BASE|inflation.py          |
+BASE|intraday_verify.py    |INTRADAY5 完整验证：分段 / 参数 / 换手 / 容量 因子：过去 w 日 (close/open-1) 均值；取最低 20% 做多；持有 h 日
+BASE|joint_search.py       |参数×权重 联合搜索（人民币口径，9腿） 参数: k∈{4,8,10,14} × MA∈{100,125,150,200,250,300} × 丹尼斯(in,out)∈25 = 600 组 权重: 0.1步长, 单腿≤20%, 国债≤20% = 2907 组 → 174 万组合；用分半外样本检验过拟
+BASE|live_signal.py        |策略③ 月度执行信号生成器 用法：python live_signal.py [本金] 例如 python live_signal.py 100000 每月最后一个交易日收盘后跑，次日执行。
+BASE|ma_struct.py          |MA 腿的两个结构性改法：缓冲带 vs 双均线 评价：口径A(2019+) / 口径B(2007+) / 2014-2018 纯样本外 / 信号翻转次数
+BASE|momentum.py           |
+BASE|multi.py              |把表现最好的策略组合成多策略组合，测相关性、组合夏普、能否过门槛
+BASE|oil_carry.py          |原油期限结构（carry）策略原型 逻辑：backwardation（近月>远月）= 现货紧张 = 正展期收益 → 做多；contango 反之 数据：WTI 92 个月度合约 (2020-2027) + 连续合约价格 注意：样本仅 2020-2026（约 6 年），只能算概念验证，不能算验证
+BASE|oil_strategy.py       |原油交易策略：趋势 + 曲线形态 + carry 过滤，带波动率目标仓位 曲线形态分解（关键）： 平行抬升 parallel = 远月(M6)涨幅 → 整条曲线移动 = 真短缺/真过剩 陡峭化 steep = (M1/M6) 变化 → 只有近月动 = 事件冲击 真短缺可持续 → 顺势做多；事件陡峭化
+BASE|overfit.py            |
+BASE|overfit_perturb.py    |过拟合诊断：参数扰动分布 + 历史选参的样本外表现 问题：策略③的 14.49%/1.31 是"策略的属性"还是"选参数的运气"？
+BASE|param50k.py           |
+BASE|pbo_test.py           |策略③ 过拟合诊断 ① CSCV/PBO：把时间切成 S 块，所有"取一半做IS、另一半做OOS"的组合，看 IS 最优者在 OOS 的排名分布 PBO = P(IS最优者的OOS排名落在后50%) ② Deflated Sharpe Ratio：按试验次数折算的夏普显著性 ③ 零假设下"最优夏普"
+BASE|pipeline_v2.py        |Pipeline v2：扩池2096只 + 历史市值代理 + 7因子 + FM/FDR + buffer组合 数据仍有的缺陷：仅现存股票（幸存者偏差）、不复权（跳跃修补）、无行业分类、EP/BP含前视偏差
+BASE|plot.py               |
+BASE|plot2.py              |
+BASE|plot3.py              |
+BASE|plot4.py              |
+BASE|plot5.py              |
+BASE|plot6.py              |
+BASE|plot7.py              |
+BASE|plot8.py              |
+BASE|plot9.py              |最优组合 vs 买入持有：净值 / 回撤 / 分年度
+BASE|prior_check.py        |
+BASE|prior_check2.py       |
+BASE|quad_add.py           |把 QUAD_ASYM（低开高走-高开低走，已验证可交易方向=-1）作为卫星加入策略③口径A ① 构建多头组合（因子最低10%，等权，月调，含成本） ② 与策略③ 相关性 ③ 卫星权重 0/5/10/15/20% 网格：年化/波动/夏普/回撤/分年/策略③下跌月贡献 警告：股票池=今日市值前2096
+BASE|quad_verify.py        |QUAD 熊市因子严格复检 ① 多头 vs 股票池等权（剥离市场beta+幸存者漂移） ② 分半：2019-2022(挖掘期) / 2023-2026(样本外) ③ 卫星叠加在每一半的表现
+BASE|real_econ.py          |实物经济景气指数（市场定价版）→ A股择时 构成：沪铜 / 螺纹钢 / BDI 的同比，标准化后等权 优势：市场定价、无发布滞后、不可"美化"
+BASE|recent.py             |
+BASE|rmb_grid.py           |双口径网格：参数在美元口径选 vs 人民币口径选，最优参数是否一致？ 结构固定为策略③六腿权重(.26/.26/.11/.11/.13/.13)，只调 k / MA天数 / 丹尼斯(in,out) 评价窗口 = 口径A (2019-01起, 真实红利低波)
+BASE|rot_blend.py          |跨资产轮动 vs 策略③：相关性 + 卫星叠加测试
+BASE|rotation.py           |
+BASE|scan2020.py           |
+BASE|scorecard.py          |统一记分卡：所有已测策略的夏普/超额t/回撤汇总
+BASE|season.py             |日历异象检验：月度季节性 / 年末年初效应 / 走前检验是否可交易
+BASE|snipe_quant.py        |狙击量化：在突破信号"即将触发"时抢跑买入，量化真突破时卖出，否则止损 严格 T+1：t 日收盘买入，最早 t+1 卖出
+BASE|snipe_walkforward.py  |抢跑策略的 walk-forward 检验 每个评估期：用过去 24 个月挑"最优参数"（= 局部过拟合）→ 用它在后 12 个月交易 对照：oracle（事后最优，上界）、固定参数（全样本最优，也是过拟合）
+BASE|spec3.py              |策略③ 定稿：A股腿 = 红利低波50% + 上证丹尼斯50%，其余四腿不变 口径A: 2019-01起（真实512890，修补拆分+2.5%分红估） 口径B: 2007-02起（用中证红利全收益H00922代理红利低波，用于长周期检验）
+BASE|spx_test.py           |纳指 vs 标普：指数选择对策略的影响
+BASE|strategy_design.py    |多因子策略原型：因子正交化 -> FM增量检验 -> 协方差组合优化 -> 择时叠加 -> 多重检验 数据限制：660只(市值前700)、不复权已修补、无财报/行业 → 只能用价量因子 输出仅用于验证流程，不可作为实盘依据
+BASE|sw_mom.py             |低频+可执行+无幸存者偏差的截面因子：申万一级行业动量 - 截面：申万一级 28 个行业指数（akshare, 1999-12 起），行业指数是规则生成的历史事实，无退市剔除 - 因子：过去 12 个月剔除最近 1 个月（12-1）的收益率，月频 - 组合：等权持有排名前 N 个行业，可选 rank
+BASE|sw_mom2.py            |补充：行业反转 / 行业低波 / 风险调整动量 vs 等权行业基准
+BASE|switch.py             |
+BASE|tgm.py                |
+BASE|trainset.py           |
+BASE|tune.py               |自动调参循环：参数网格 -> 候选池 -> 前向贪心选择，直到夏普无明显提升
+BASE|tune2.py              |第二轮：局部搜索(增/删/换) + 参数邻域平坦性 + 2020后表现
+BASE|tune3.py              |第三轮：加入网上搜到的经典策略（200日均线、布林带、指数轮动双动量），重跑选择循环
+BASE|tune4.py              |第四轮验收：最终组合稳健性 + 对比图
+BASE|tune5.py              |全因子网格搜索 + 速度评测 v2 修复: 1) 丹尼斯跌破下轨应清仓(0)而非延续仓位 2) 网格评估改为对齐后的纯numpy运算 网格: 纳指动量k(6) x 纳指MA(5) x 丹尼斯in(5) x out(5) x BRK权重(3) = 2250
+BASE|two.py                |
+BASE|us_compare.py         |
+BASE|utility.py            |边际效用检验：收益集中度 / 偏度 / 确定性等价(CRRA) / 块自举路径分布
+BASE|val_timing.py         |评估"估值分位择时"策略（群友话术）： 规则翻译: PE历史分位<15%满仓宽基; >80%逐步减仓; 熊市信号(破MA200)清仓 变体: ①纯估值 ②估值+熊市清仓 ③纯趋势(无估值) ④买入持有 检验: 年化/夏普/回撤 + 滚动5年一倍的概率 + 低分位买入后的前向收益 数据: 沪深300 
+BASE|weight_search.py      |权重搜索：9条腿（新增中证500/中证1000/国债）全人民币口径 腿池: 纳指动量 / 纳指MA125 / BRK / 黄金 / 红利低波 / 上证丹尼斯 / 中证500 / 中证1000 / 国债 方法: 0.1步长权重网格(权重和=1, 单腿≤40%), 最大夏普 + 分半稳健性检验 窗口: 
+BASE|weight_search2.py     |权重搜索 v2：加约束 + 20年窗口验证 约束: 单腿≤25%, 国债≤20%（防止夏普优化机械地堆低波资产） 验证: 2007+窗口(红利用代理,无1000)看国债/黄金配置是否结构性存在
+QUANT|adamw_lr_control.py   |对照：AdamW 是否只是 lr 没调好？ 用与 Phase A 完全相同的设置（seed=1 / 3ep / sub=0.25）扫 AdamW lr， 避免把「Muon 赢」误判成「AdamW 基线太弱」。
+QUANT|apply_sw_industry.py  |把 arr.npz 的 IND 换成申万二级，并给 panel_big 加 sw_industry 列 策略： - arr.npz 是 zip 容器，只替换 IND.npy 成员，其余成员流式拷贝（不解压、不重算因子） - 原聚类 IND 备份为 IND_cluster.npy - panel_bi
+QUANT|audit_data.py         |数据/标签审计：Y2 中的 inf 是否制造了虚假 alpha 背景：fwd5_lag = close[t+6]/close[t+1]-1，当 close[t+1]=0（停牌/数据缺失）会产生 inf。 big_features.py 的 ok 条件只排了 notna()，没排 isfinite()
+QUANT|audit_overfit.py      |过拟合审计：IS/OOS 衰减 · 标签安慰剂 · 超参敏感度 · 分年度稳定性 统一子样本，所有模型可比；评估集固定为 2024+ 每 5 日一个截面。
+QUANT|audit_redundancy.py   |冗余度审计：42 个显著因子到底等于几个独立 bet ① 因子值相关矩阵 ② PCA 独立维度 ③ IC 序列同步性 ④ Li&Ji 有效检验数 ⑤ 逐日 IC 的 block bootstrap 置信区间（修正 NW-t 的乐观）
+QUANT|big_download.py       |全 A 股日线下载（akshare/东财，前复权）——规模扩到 5000+ 存活偏差控制：当前名单 + 沪深两所退市名单（2015 年后退市的也拉进来） 分片 200 只落盘 + 断点续传 用法：python scripts/big_download.py [测试只数]
+QUANT|big_eval.py           |全市场结果的压力测试：小市值中性化、流动性分层、成本敏感性、纯多头 目的：31% 多空年化到底能不能落地
+QUANT|big_features.py       |全市场面板 + 因子（规模：5000+ 只 × 2015-2026，42 个因子） 输出： data/big/panel_big.parquet 长表（训练段，含 industry / is_st） data/big/arr.npz X[T,N,F] / Y[T,N] / Y2[T,N] / M[T
+QUANT|big_fin_download.py   |全市场财报数据下载（akshare 东财按报告期接口） 四张表：yjbb 业绩报表 / zcfz 资产负债表 / lrb 利润表 / xjll 现金流量表 范围：2013Q1 ~ 最新报告期（55 期） 特性：断点续传（每期每表落一个 parquet）、失败重试 3 次指数退避、限速 输出：data
+QUANT|big_fin_features.py   |PIT 基本面因子构建：质量四维 + 估值 流程： 1. 读 data/big/fin/ 四表 → 统一列名 2. 累计值转单季 → 滚动 4 季得 TTM 3. 按【公告日】铺到交易日（merge_asof，严格无未来函数） 4. 总市值 = (净利润累计 ÷ 每股收益累计) × 成交均价 —— 
+QUANT|big_models.py         |全市场规模训练：LightGBM(boosting) + Transformer(RMSNorm/SwiGLU/dropout) + Bagging + Stacking 数据：data/big/arr.npz（5000+ 只 × 2015-2026） 切分：训练 <2022 ｜ 元模型/早停 20
+QUANT|big_models_v0.py      |全市场规模训练：LightGBM(boosting) + Transformer(RMSNorm/SwiGLU/dropout) + Bagging + Stacking 数据：data/big/arr.npz（5000+ 只 × 2015-2026） 切分：训练 <2022 ｜ 元模型/早停 20
+QUANT|big_train.py          |全市场规模训练：LightGBM(boosting) + Transformer(RMSNorm/SwiGLU/dropout) + Bagging + Stacking(Ridge) 数据：data/big/arr.npz（5378 只 × 2616 日 × 42 因子） 切分：train <20
+QUANT|checkpoint.py         |断点：保存当前可恢复的训练状态 已完成的：数据面板、因子权重、LightGBM（可确定性复现，6 秒重训）、配置 未完成：Transformer 3 种子（进程在预测阶段被终止，内存模型丢失）、Stacking 元模型
+QUANT|delist_stress.py      |退市风险压力测试 + 流动性/市值过滤 ① 在回测里注入退市风险：每年 h 概率退市，损失 LGD ② 加流动性下限（剔除成交额最低 X%），看代价有多大 ③ 看当前策略持仓的市值/流动性画像
+QUANT|download_data.py      |下载 A 股日线（新浪源，前复权），随机抽样避免只取大市值 代码来自交易所官网全量列表（沪主板 + 深市），不依赖东财接口 输出：D:/quant/data/raw/{code}.csv
+QUANT|factor_scorecard.py   |42 因子量化标准打分卡 检验项： ① 覆盖度 ② IC / ICIR / NW-t（含 Bonferroni 多重检验阈值） ③ IC 胜率 ④ 分年度符号稳定性 ⑤ 十分位单调性 ⑥ 多空毛收益 ⑦ 换手率（top10% 每 5 日更替） ⑧ 三层中性化 IC：行业 / 市值 / 行业+市值 评
+QUANT|fin_ic_probe.py       |基本面因子验证：单因子 IC、与量价因子相关性、Ridge 增量 三段： ① 单因子 IC/ICIR（全样本 + 分年） ② 与 42 个量价因子的相关性（逐日截面秩相关的均值） ③ 在 dev 段把「基本面合成分」作为 Ridge 第 4 输入，对比已知 LGBM+TF 的 0.1412 和 LG
+QUANT|hot_sector_backtest.py|复现"行业动量追涨 + 盈亏加减仓"热点短线策略（截图描述）— 修正口径版 三个口径要点： 1. 收益用 Y2（已截面去均值）→ 组合的 Y2 均值本身就是"相对全市场等权的超额"； 年化用 算术均值×50.4，避免几何年化里的波动拖累污染横向比较。 2. 成本按持仓权重向量的单边更替率算；仓位缩放
+QUANT|ind_check.py          |行业补齐 + 行业中性化检验 1) 抓申万一级 31 个行业成分 → symbol 映射 2) D1 的行业分布 vs 全市场基准 3) 行业中性化：预测与收益都在行业内去均值后，IC 还剩多少 4) 行业中性化后的负向筛选（每个行业内剔除垫底 10%）
+QUANT|ind_rolling.py        |Point-in-time 行业分组：用过去 250 日收益相关性做聚类，完全无前视 背景：申万官网历史分类文件不可用（swsresearch.com 连不通）， `index_component_sw` 只有当前成分，回溯到 2016 是确认的前视偏差。 替代方案：每年年初只用「上一年及以前」的日
+QUANT|lgbm_bag_probe.py     |TF 的"稳定性优势"是不是只是 bagging 的功劳？ 背景：dev 段 TF(3 seed bagging) ICIR 1.21 高于 LGBM(单模型) 1.00，容易被读成 "Transformer 更稳"。但 3 个种子平均本身就会降低预测方差——这是 bagging 的数学性质， 不是
+QUANT|live_screen.py        |月度避雷清单生成器（模型完全冻结，不重训、不调参） 用法： python scripts/live_screen.py # 用当前 arr.npz 的最后一个交易日打分 python scripts/live_screen.py --top 50 # 同时在终端打印 D1 前 50 只 数据更新（每
+QUANT|lockbox_eval.py       |Lockbox 一次性验证：只能运行一次，评估封存段（训练/调参全程未接触） 严格性： - 标签在 data/big/lockbox_labels.npz，主数组 arr.npz 中该段 Y/Y2 已置 NaN - 模型权重与 Stacking 系数全部来自重训后的 checkpoint，不再拟合任
+QUANT|long_strategy.py      |质量+估值长线策略回测（复现"季度更新、换手<2倍、持有 200-400 只"的形态） 规则： - 质量门槛：质量分（6 因子等权 z）前 40% - 估值排序：池内按估值分（5 因子等权 z）取前 TOP 只 - 等权，每 60 个交易日（≈季度）调仓 - 持有期收益：12 个 5 日 Y2 窗口
+QUANT|macro_switch.py       |独立宏观开关：信用利差 + 股债相关性 逻辑： 信用利差走阔 = 信用风险上升 → 减风险资产 股债相关性转正 = 传统对冲失效（通胀/流动性冲击型） → 减风险资产 两者都与"价格趋势"独立，是策略③内部信号之外的新信息 全部信号滞后一个月，无前视
+QUANT|mine_factors.py       |P1 因子生成（公式化 alpha，仅用 T 日及之前信息） 14 个候选因子：反转/动量/低波/流动性/隔夜-日内分解/收盘位置/量价偏离 输出：D:/quant/data/factors/{name}.parquet (date, symbol, value)
+QUANT|multifactor.py        |多因子策略：5 种合成方法对比 + 组合构建 + 成本/换手控制 纪律：因子权重只用训练期(<2024)的 ICIR 估计；OOS(2024+) 只做评估 组合：周频(5交易日)调仓，top20% 等权，rank buffer（留在前40%就不换）
+QUANT|muon_ab.py            |Muon vs AdamW 严格 A/B（同 seed 同初始化、同数据顺序、同评估集） Phase A：单 seed 快速扫 Muon 学习率（用 2022 IC 选，不碰 OOS） Phase B：2 seed × 5 epoch 正式对照，报告 2023 / 2024+ OOS IC
+QUANT|muon_optimizer.py     |Muon 优化器（Newton–Schulz 正交化）+ AdamW 混合分组 参考 Keller Jordan 的 Muon / Moonlight 实现。要点： - 只对 2D 隐层权重矩阵做正交化更新；embedding 类、输出 head、bias、RMSNorm 增益、 位置编码等仍交给 
+QUANT|muon_plot.py          |Muon A/B 结果可视化
+QUANT|p6_combo.py           |P6-lite 组合终判：8 个入池因子等权 rank 合成 → K=5 分组 + 多头超额 + 成本 口径：日频截面，T 日信号 T+1 买入持 H=5 日（用 panel label），20bp 单边
+QUANT|purged_cv.py          |5 折 Purged + Embargo Walk-Forward CV（严格前向，不碰 lockbox） 设计 - 只在有标签区间（2016-01 ~ 2025-06）切分；lockbox 段 Y2 为 NaN，天然排除 - 均分 6 块，折 k 用 B0..Bk 训练（expanding），B(
+QUANT|purged_cv_fin.py      |5 折 Purged + Embargo Walk-Forward CV（严格前向，不碰 lockbox） 设计 - 只在有标签区间（2016-01 ~ 2025-06）切分；lockbox 段 Y2 为 NaN，天然排除 - 均分 6 块，折 k 用 B0..Bk 训练（expanding），B(
+QUANT|pv_deep.py            |量价因子专项深查 1) 逐年 IC 稳定性（2016-2026）——是常年有效还是只有近两年 2) 量价块内部相关性 / PCA 独立维度 3) 可交易性：剔除信号日涨跌停（|ret1|>=9.5%）后 IC 是否还在 4) 垫底档（D1）是什么股票：换手、成交额扩张、波动、市值的画像
+QUANT|rebuild_ridge.py      |只重建 Stacking 元模型层（不重训 LGBM / TF） 背景：checkpoint 全在（lgbm_big.txt + tf_seed{1,2,3}.pt），产线仍需 OLS 系数。 重跑 big_train.py 的唯一目的是换元模型，这件事不需要 GPU。 流程： 1. 用训练段(<2
+QUANT|regime_rotation.py    |多资产轮动 v2：行情好吃 beta，行情差避险 两层设计： 层1 风险开关（breadth）：风险资产中在 10 月均线上方的比例 → 决定风险预算 层2 资产选择：风险资产内部按 9-1 风险调整动量选 top N；防御资产按动量选 1-2 变体：①二分层（硬切换）②连续风险预算 ③波动率目标 
+QUANT|remote.py             |极简远程执行 / SFTP 上传（paramiko，密码由环境变量 RHPW 提供）
+QUANT|ridge_check.py        |Stacking 元模型：OLS → Ridge 的等价性/增益检验 背景：big_train.py 的 Stacking 注释写 Ridge，实际用 np.linalg.lstsq（无 L2）， 且 mat() 对每个分段各自 zc（系数在 meta 段拟合，却用验证段自己的均值方差去标准化）。 
+QUANT|scorecard_plot.py     |42 因子量化标准评价 · 四宫格总览图
+QUANT|st_download.py        |时变 ST 日历下载（baostock isST 字段，真正的历史 ST 状态） 用法：python scripts/st_download.py <shard_id> <n_shards> 每个进程独立 login，只落盘 isST==1 的 (date, symbol)，最后用 st_merge
+QUANT|st_finalize.py        |合成最终 ST 日历：baostock 精确 isST ∪ 涨跌幅限制代理（补全并发失败缺口） baostock 并发被服务端限流，只成功查询到部分股票； 代理用「滚动 20 日 max|pctChg|<=5.5% 且精确触及 5% 至少 2 次」识别 5% 涨跌幅限制期， 在已查询样本上 prec
+QUANT|st_merge.py           |合并 baostock isST 分片 → 时变 ST 日历，并输出审计统计
+QUANT|st_sensitivity.py     |ST 剔除的敏感性检验（用 v1 备份面板，不干扰正在进行的 v2 重训） 回答：v2 因 baostock 并发限流只拿到部分历史 ST，这个覆盖缺口会不会改变结论？ 对比三种口径的测试段 IC：不剔 / 剔精确集 / 剔宽口径(含代理)。
+QUANT|stack_ridge.py        |Stacking 元模型：真正的 Ridge（含标准化口径与正则强度选择） 修复两个历史问题： 1) big_train.py 的 Stacking 注释写 Ridge，实际是 np.linalg.lstsq（无 L2）； 三个输入（LGBM/TF/因子）两两相关 0.39~0.88，OLS 权重极
+QUANT|strategy_compare.py   |策略对照：全市场剔底 vs 行业内剔底（同段/同预测/同成本） 段：2024-01 ~ 2025-06（preds.npz 的 me + te，LGBM 在 <2024 训练，两段都是 OOS） 预测：p_lgb（LGBM 单模型）—— 不使用 p_st（Stacking 在 me 段是样本内） 调
+QUANT|svm_cs.py             |SVM 截面选股（换目标，不是重跑回归） 与 svm_daily 的区别： ① 训练目标改为「截面百分位排名」和「截面分类（前30% vs 后30%）」，不再拟合收益幅度 —— 直接针对上次发现的问题：按幅度拟合会被最强因子（小市值）绑架 ② 评估改为多空组合（top20% 多 / bottom20
+QUANT|svm_cs_eval.py        |截面多空评估（复用 svm_cs 的预测，不重训） 把毛/净分开，因为三模型换手差 2 倍；小市值中性化单列，避免口径混淆。
+QUANT|svm_daily.py          |SVM 日频截面选股 纪律： 训练 <2023 | 验证 2023（只用于选 C/gamma/epsilon） | 测试 2024-01+（只看一次） 标签 = 5 日前向收益，截面去均值（预测超额收益） 对照：① OLS 线性 ② Ridge ③ 8因子 ICIR 线性合成 ④ SVM 预测对因子
+QUANT|svm_stack.py          |SVM 残差叠加检验：线性模型 OLS + λ×(SVM 的非线性残差) 动机：svm_daily 发现 SVM 单独劣于 OLS，但其预测里 45% 无法被 8 因子线性解释， 且该残差 OOS IC +0.018(t 6.9)。问：把它当“增量信号”叠到线性模型上能否加分？ 纪律：λ 只在验证集
+QUANT|swap_industry.py      |用申万二级行业替换统计聚类行业（IND 数组） 背景：现面板 IND 来自 ind_roll.parquet —— 每年用上一年 250 日收益做 PCA+KMeans 的 统计聚类 31 组，跨年 ARI 仅 0.12（等于每年换一套行业）。申万二级是业务分类， 时变慢、可解释、与市场共识一致。 
+QUANT|taa_v3.py             |TAA v3：ERP 择时 + 精简资产池 相对于 v2（regime_rotation.py）的两处改动： 1. 资产池：6 个风险资产（4 个 A 股宽基，两两相关 0.8+）→ 4 个（沪深300 / 中证1000 / 纳指 / BRK） 防御仍为国债 + 黄金。 2. 信号：动量广度 → *
+QUANT|tf_cv_probe.py        |TF 的 CV 缺口探针：只跑最省钱的 2 折，回答"序列模型在小样本上会不会崩" 背景：5 折 Purged CV 里 LGBM / Ridge / 因子 / Stacking 都逐折重拟合了，只有 TF 没进 CV （3 seed × 6 epoch × 5 折 ≈ 30 小时）。这在方法论上是
+QUANT|tf_net.py             |TFNet 结构（与 big_train.py 完全一致），供实时打分 / 一次性验证共用
+QUANT|tree_model.py         |决策树（含剪枝）做截面收益预测 设计： 训练 < 2024-01-01，验证 2023 全年（选剪枝强度），测试 2024-01-01+ 标签做截面去均值（预测超额收益），评估用日频 Rank IC 对照：①不剪枝的深度扫描（看 overfit 曲线）②线性 OLS ③ 8因子 rank 合成 剪枝
+QUANT|turnover_scan.py      |降频 + 缓冲带：换手-超额收益前沿（只在开发段扫描，不碰 lockbox） 调仓周期 step ∈ {5,10,20,40} 交易日 × 缓冲带 buffer ∈ {0,.1,.2,.4,.8} 两种组合：① top10% 纯多头 ② 剔除垫底 10%（负向筛选） 持有 step 日的收益 = s

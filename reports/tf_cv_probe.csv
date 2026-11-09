@@ -1,0 +1,2 @@
+fold,arch,n_train,n_val,val_days,ic,icir,epochs,seeds,train_to,val_to
+5,tf,1274958,377301,77,0.11589724146433654,0.7548675574671849,6,3,2023-11-17,2025-06-30

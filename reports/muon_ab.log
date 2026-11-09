@@ -1,0 +1,67 @@
+device cuda | torch 2.7.1+cu118
+训练 848665 行 / 269 日 | 2022 210030 | 2023 228605 | 2024+ 681562
+
+=== Phase A｜Muon lr 扫描（seed=1, 3ep, sub=0.25，用 2022 IC 选参）===
+  AdamW_8e4        seed1 ep1 loss 0.04840 | 2022 IC +0.0818 | 17s
+  AdamW_8e4        seed1 ep2 loss 0.04176 | 2022 IC +0.0796 | 29s
+  AdamW_8e4        seed1 ep3 loss 0.04131 | 2022 IC +0.0861 | 42s
+  → AdamW_8e4        best2022 +0.0861 | 2023 +0.0894 | 2024+ +0.0932 | 53s
+
+  Muon_0.005       seed1 ep1 loss 0.04935 | 2022 IC +0.0920 | 13s
+  Muon_0.005       seed1 ep2 loss 0.04148 | 2022 IC +0.0838 | 27s
+  Muon_0.005       seed1 ep3 loss 0.04116 | 2022 IC +0.1002 | 40s
+  → Muon_0.005       best2022 +0.1002 | 2023 +0.1017 | 2024+ +0.1048 | 52s
+
+  Muon_0.02        seed1 ep1 loss 0.04580 | 2022 IC +0.0848 | 13s
+  Muon_0.02        seed1 ep2 loss 0.04157 | 2022 IC +0.0887 | 27s
+  Muon_0.02        seed1 ep3 loss 0.04128 | 2022 IC +0.0948 | 40s
+  → Muon_0.02        best2022 +0.0948 | 2023 +0.1044 | 2024+ +0.1015 | 52s
+
+  Muon_0.05        seed1 ep1 loss 0.04534 | 2022 IC +0.0826 | 13s
+  Muon_0.05        seed1 ep2 loss 0.04182 | 2022 IC +0.0832 | 27s
+  Muon_0.05        seed1 ep3 loss 0.04144 | 2022 IC +0.0923 | 40s
+  → Muon_0.05        best2022 +0.0923 | 2023 +0.0975 | 2024+ +0.0985 | 52s
+
+Phase A 选出 Muon lr = 0.005（2022 IC +0.1002）
+
+=== Phase B｜正式 A/B（2 seed × 5ep × sub=0.5）===
+  AdamW            seed1 ep1 loss 0.04506 | 2022 IC +0.0430 | 22s
+  AdamW            seed1 ep2 loss 0.04144 | 2022 IC +0.0902 | 43s
+  AdamW            seed1 ep3 loss 0.04127 | 2022 IC +0.0796 | 65s
+  AdamW            seed1 ep4 loss 0.04109 | 2022 IC +0.0861 | 87s
+  AdamW            seed1 ep5 loss 0.04098 | 2022 IC +0.0974 | 109s
+  → AdamW            best2022 +0.0974 | 2023 +0.1000 | 2024+ +0.1005 | 120s
+
+  Muon             seed1 ep1 loss 0.04538 | 2022 IC +0.0941 | 24s
+  Muon             seed1 ep2 loss 0.04124 | 2022 IC +0.0944 | 48s
+  Muon             seed1 ep3 loss 0.04113 | 2022 IC +0.0732 | 73s
+  Muon             seed1 ep4 loss 0.04088 | 2022 IC +0.0910 | 97s
+  Muon             seed1 ep5 loss 0.04072 | 2022 IC +0.0924 | 121s
+  → Muon             best2022 +0.0944 | 2023 +0.0884 | 2024+ +0.0978 | 133s
+
+  AdamW            seed2 ep1 loss 0.04454 | 2022 IC +0.0850 | 22s
+  AdamW            seed2 ep2 loss 0.04133 | 2022 IC +0.0984 | 44s
+  AdamW            seed2 ep3 loss 0.04121 | 2022 IC +0.0959 | 65s
+  AdamW            seed2 ep4 loss 0.04109 | 2022 IC +0.0954 | 87s
+  AdamW            seed2 ep5 loss 0.04097 | 2022 IC +0.0977 | 109s
+  → AdamW            best2022 +0.0984 | 2023 +0.1013 | 2024+ +0.1013 | 121s
+
+  Muon             seed2 ep1 loss 0.04520 | 2022 IC +0.0899 | 24s
+  Muon             seed2 ep2 loss 0.04117 | 2022 IC +0.1040 | 48s
+  Muon             seed2 ep3 loss 0.04108 | 2022 IC +0.1038 | 72s
+  Muon             seed2 ep4 loss 0.04089 | 2022 IC +0.0889 | 97s
+  Muon             seed2 ep5 loss 0.04071 | 2022 IC +0.0949 | 121s
+  → Muon             best2022 +0.1040 | 2023 +0.1075 | 2024+ +0.1047 | 134s
+
+
+=== 最终对比（Phase B，2024+ OOS）===
+         ic22            ic23            ic24         loss_final         secs        
+         mean     std    mean     std    mean     std       mean  std    mean     std
+tag                                                                                  
+AdamW  0.0979  0.0007  0.1006  0.0009  0.1009  0.0006     0.0410  0.0  120.55  0.2121
+Muon   0.0992  0.0068  0.0980  0.0135  0.1012  0.0049     0.0407  0.0  133.30  0.9899
+
+Muon 参数分组占比:
+  Muon 11 个张量 / 188352 参数 (96.7%) | AdamW 19 个张量 / 6337 参数
+
+已存 reports/muon_ab.csv、muon_curves.json

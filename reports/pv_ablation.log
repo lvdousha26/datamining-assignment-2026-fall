@@ -1,0 +1,19 @@
+新增量价因子: [np.str_('clv'), np.str_('ushadow'), np.str_('lshadow'), np.str_('vwap_dev'), np.str_('pvcorr20'), np.str_('pvcorr60'), np.str_('amt_ratio'), np.str_('turn_z'), np.str_('range_ratio'), np.str_('mf20'), np.str_('wvma20'), np.str_('illiq_ratio')]
+  clv          OOS IC -0.0054
+  ushadow      OOS IC +0.0001
+  lshadow      OOS IC +0.0121
+  vwap_dev     OOS IC -0.0299
+  pvcorr20     OOS IC -0.0495
+  pvcorr60     OOS IC -0.0342
+  amt_ratio    OOS IC -0.0680
+  turn_z       OOS IC -0.0518
+  range_ratio  OOS IC -0.0539
+  mf20         OOS IC -0.0733
+  wvma20       OOS IC -0.0362
+  illiq_ratio  OOS IC +0.0531
+旧30因子          2023   IC +0.1018 ICIR +0.82
+旧30因子          2024+  IC +0.0961 ICIR +0.70
+新增12个量价        2023   IC +0.0769 ICIR +0.68
+新增12个量价        2024+  IC +0.0885 ICIR +0.71
+全部42因子         2023   IC +0.1021 ICIR +0.79
+全部42因子         2024+  IC +0.0994 ICIR +0.69

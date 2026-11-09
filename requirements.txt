@@ -1,0 +1,14 @@
+# D:/quant 运行环境（Python 3.13）
+# 由 scripts 实际 import 的包反推
+
+numpy>=2.4.4
+pandas>=3.0.2
+scipy>=1.17.1
+lightgbm>=4.7.0
+torch>=2.7.1+cu118
+akshare>=1.20.18
+pyarrow>=26.0.0
+matplotlib>=3.11.2
+pytest>=9.0.2
+scikit-learn>=1.8.0
+baostock>=0.9.4

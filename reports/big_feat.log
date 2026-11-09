@@ -1,0 +1,10 @@
+分片 28 个
+原始 11526132 行 | 5477 只 | 2015-01-05 ~ 2026-10-30
+计算因子...
+C:\Users\25097\AppData\Roaming\Python\Python313\site-packages\numpy\_core\_methods.py:49: RuntimeWarning: invalid value encountered in reduce
+  return umr_sum(a, axis, dtype, out, keepdims, initial, where)
+因子 30 个
+截面标准化...
+有效样本 10066513 行 | 2616 日 | 5378 只
+数组 X(2616, 5378, 30) Y(2616, 5378) | 稀疏度 28%
+完成

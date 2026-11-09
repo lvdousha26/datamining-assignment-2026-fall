@@ -1,0 +1,68 @@
+数组 (2622, 5342, 42) | 5342 只 | 2016-01-12 ~ 2026-10-30 | 覆盖 69.6%
+切分（含 6 日 embargo，lockbox 2025-07-01 起完全不参与）: {'tr': 1933, 'me': 236, 'va': 111, 'te': 111} （交易日数）
+样本 train 1267724（387 日）| meta 1124444 | dev-val 542308 | dev-OOS 542308
+
+=== ① 因子 rank 合成（ICIR 加权，只用 train 段）===
+  因子 IC: {np.str_('illiq_ratio'): 0.0404, np.str_('illiq20'): 0.0334, np.str_('overn5'): 0.016, np.str_('overn20'): 0.0153, np.str_('lshadow'): 0.0023, np.str_('kurt20'): 0.0022}
+  权重 top5: {np.str_('illiq_ratio'): 0.369, np.str_('illiq20'): 0.305, np.str_('overn5'): 0.146, np.str_('overn20'): 0.139, np.str_('lshadow'): 0.021}
+  因子合成 meta                  IC +0.0376  ICIR +0.22  NW-t +1.9
+  因子合成 dev-val               IC +0.0897  ICIR +0.97  NW-t +5.9
+  因子合成 dev-OOS               IC +0.0897  ICIR +0.97  NW-t +5.9
+
+=== ② LightGBM（每 5 日采样，meta 段早停）===
+  LGBM 9s 最优轮 85
+  LGBM 已存盘 checkpoints/lgbm_big.txt
+  LGBM dev-val               IC +0.1285  ICIR +0.88  NW-t +5.0
+  LGBM dev-OOS               IC +0.1285  ICIR +0.88  NW-t +5.0
+
+=== ③ Transformer (RMSNorm+SwiGLU+dropout, 3 seed) ===
+    seed1 ep1 loss 0.04358 | 2022 IC +0.0815 | 49s
+    seed1 ep2 loss 0.04142 | 2022 IC +0.0986 | 44s
+    seed1 ep3 loss 0.04120 | 2022 IC +0.1016 | 44s
+    seed1 ep4 loss 0.04118 | 2022 IC +0.0944 | 44s
+    seed1 ep5 loss 0.04105 | 2022 IC +0.0956 | 43s
+    seed1 ep6 loss 0.04091 | 2022 IC +0.0938 | 44s
+    seed1 最优 2022 IC +0.1016
+    seed1 权重已存 checkpoints/tf_seed1.pt
+    seed2 ep1 loss 0.04357 | 2022 IC +0.0615 | 44s
+    seed2 ep2 loss 0.04139 | 2022 IC +0.0904 | 43s
+    seed2 ep3 loss 0.04120 | 2022 IC +0.0935 | 43s
+    seed2 ep4 loss 0.04107 | 2022 IC +0.0913 | 43s
+    seed2 ep5 loss 0.04098 | 2022 IC +0.0938 | 44s
+    seed2 ep6 loss 0.04090 | 2022 IC +0.0916 | 43s
+    seed2 最优 2022 IC +0.0938
+    seed2 权重已存 checkpoints/tf_seed2.pt
+    seed3 ep1 loss 0.04349 | 2022 IC +0.0921 | 44s
+    seed3 ep2 loss 0.04137 | 2022 IC +0.0796 | 43s
+    seed3 ep3 loss 0.04125 | 2022 IC +0.0761 | 43s
+    seed3 ep4 loss 0.04122 | 2022 IC +0.0824 | 44s
+    seed3 ep5 loss 0.04099 | 2022 IC +0.0903 | 43s
+    seed3 ep6 loss 0.04096 | 2022 IC +0.0891 | 42s
+    seed3 最优 2022 IC +0.0921
+    seed3 权重已存 checkpoints/tf_seed3.pt
+  TF bagging meta            IC +0.1009  ICIR +0.58  NW-t +5.0
+  TF bagging dev-val         IC +0.1162  ICIR +0.81  NW-t +4.6
+  TF bagging dev-OOS         IC +0.1162  ICIR +0.81  NW-t +4.6
+
+=== ④ Stacking（真正的 Ridge：L2 + 截距不惩罚，标准化参数固定在 meta 段）===
+     lam       ic
+   0.000 0.073432
+   0.001 0.073453
+   0.010 0.073645
+   0.100 0.075263
+   1.000 0.082066
+  10.000 0.086942
+ 100.000 0.087684
+1000.000 0.087763
+  正则 lam=1000 | 权重 [LGBM, TF, 因子, 截距]: [0.4986 0.4624 0.1579 0.    ]
+  Stacking meta(拟合)          IC +0.1015  ICIR +0.57  NW-t +4.9
+  Stacking dev-val           IC +0.1316  ICIR +0.90  NW-t +5.2
+  Stacking dev-OOS           IC +0.1316  ICIR +0.90  NW-t +5.2
+
+=== ⑤ 多空（top/bottom 10%，5 日非重叠，双向 20bp）===
+  因子合成           年化    6.96% 波动 14.28% 夏普  0.35 胜率 48%
+  LGBM           年化   35.22% 波动 17.41% 夏普  1.91 胜率 57%
+  TF             年化   21.13% 波动 17.27% 夏普  1.11 胜率 52%
+  Stacking       年化   33.36% 波动 17.23% 夏普  1.82 胜率 61%
+
+预测已存 data/big/preds.npz

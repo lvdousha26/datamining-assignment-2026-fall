@@ -1,0 +1,6 @@
+login success!
+shard 0/6 login 0 | 913 只
+  shard0 100/913  ST行 12870  104s
+  shard0 200/913  ST行 25704  219s
+logout failed!
+shard0 完成：ST 行 26952 | 涉及 57 只 | 失败 697 | 710s

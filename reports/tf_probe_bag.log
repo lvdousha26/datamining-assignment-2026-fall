@@ -1,0 +1,30 @@
+设备 cuda | 折 5 | 6 epoch | 3 seed
+
+折5 训练 2016-01-12~2023-11-17 (1274958 行) → 验证 2023-11-28~2025-06-30 (377301 行)
+    ep1 loss 0.04390 | 33s
+    ep2 loss 0.04138 | 29s
+    ep3 loss 0.04119 | 29s
+    ep4 loss 0.04112 | 29s
+    ep5 loss 0.04100 | 29s
+    ep6 loss 0.04092 | 29s
+    [tf] seed1 末轮验证 IC +0.1138 (ICIR 0.75)
+    ep1 loss 0.04367 | 29s
+    ep2 loss 0.04131 | 29s
+    ep3 loss 0.04126 | 29s
+    ep4 loss 0.04104 | 29s
+    ep5 loss 0.04097 | 29s
+    ep6 loss 0.04093 | 32s
+    [tf] seed2 末轮验证 IC +0.1131 (ICIR 0.75)
+    ep1 loss 0.04339 | 31s
+    ep2 loss 0.04143 | 31s
+    ep3 loss 0.04115 | 29s
+    ep4 loss 0.04110 | 29s
+    ep5 loss 0.04107 | 29s
+    ep6 loss 0.04101 | 29s
+    [tf] seed3 末轮验证 IC +0.1146 (ICIR 0.77)
+  → 折5 tf(3 seed, 6 epoch) IC +0.1159 ICIR 0.75 | 同折 LGBM 见 purged_cv_folds.csv
+
+=== 汇总 ===
+ fold arch  n_train  val_days     ic   icir
+    5   tf  1274958        77 0.1159 0.7549
+已存 reports/tf_cv_probe.csv

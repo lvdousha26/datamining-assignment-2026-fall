@@ -1,0 +1,24 @@
+device cuda | torch 2.7.1+cu118
+训练 848665 行 / 269 日 | 2022 210030 | 2023 228605 | 2024+ 681562
+=== 充分训练下 AdamW lr=3e-3 验证（5ep / sub=0.5 / 2 seed）===
+  AdamW_3e3        seed1 ep1 loss 0.04496 | 2022 IC +0.0847 | 25s
+  AdamW_3e3        seed1 ep2 loss 0.04138 | 2022 IC +0.0896 | 48s
+  AdamW_3e3        seed1 ep3 loss 0.04123 | 2022 IC +0.0747 | 70s
+  AdamW_3e3        seed1 ep4 loss 0.04102 | 2022 IC +0.0822 | 92s
+  AdamW_3e3        seed1 ep5 loss 0.04091 | 2022 IC +0.0949 | 114s
+  → AdamW_3e3        best2022 +0.0949 | 2023 +0.0948 | 2024+ +0.0977 | 126s
+
+  AdamW_3e3        seed2 ep1 loss 0.04445 | 2022 IC +0.0961 | 22s
+  AdamW_3e3        seed2 ep2 loss 0.04130 | 2022 IC +0.1011 | 44s
+  AdamW_3e3        seed2 ep3 loss 0.04117 | 2022 IC +0.0953 | 66s
+  AdamW_3e3        seed2 ep4 loss 0.04107 | 2022 IC +0.0980 | 87s
+  AdamW_3e3        seed2 ep5 loss 0.04092 | 2022 IC +0.0978 | 109s
+  → AdamW_3e3        best2022 +0.1011 | 2023 +0.1077 | 2024+ +0.0998 | 121s
+
+
+=== 结果 ===
+      tag  seed   ic22   ic23   ic24  loss_final
+AdamW_3e3     1 0.0949 0.0948 0.0977      0.0409
+AdamW_3e3     2 0.1011 0.1077 0.0998      0.0409
+
+均值 2023 0.1013 | 2024+ 0.0988

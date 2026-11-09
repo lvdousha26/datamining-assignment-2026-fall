@@ -1,0 +1,20 @@
+{
+  "done": [
+    "原始数据 5563 只",
+    "因子面板 1006 万样本 × 30 因子",
+    "LightGBM 模型文件",
+    "因子 IC/权重",
+    "配置"
+  ],
+  "lost": [
+    "Transformer 3 个种子（进程在预测阶段被终止）",
+    "Stacking 元模型",
+    "本轮预测文件"
+  ],
+  "resume_hint": "python scripts/big_train.py（已加断点保存，TF 每训练完一个种子即落盘）",
+  "known_results_prior_run": {
+    "LGBM_OOS_IC": 0.0965,
+    "TF_OOS_IC": "约 0.10（上一轮，同日标签口径）",
+    "note": "上一轮用同日标签，IC 0.1026；改用次日买入后 0.0965"
+  }
+}

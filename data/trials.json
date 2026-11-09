@@ -1,0 +1,365 @@
+[
+ {
+  "factor": "REV5",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "REV20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "MOM60",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "MOM120",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "MOM120_20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "VOL20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "VOL60",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "AMIHUD20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "OVERNIGHT20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "INTRADAY20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "QUAD_ASYM",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "CLV20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "VWAPDEV20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "SIZE20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "HLRANGE20",
+  "stage": "P1_generated",
+  "n_trials_total": 15,
+  "panel": "1897d x 255s"
+ },
+ {
+  "factor": "INTRADAY20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0671,
+  "icir": -0.378,
+  "nw_t": -5.89,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": "基准",
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "SIZE20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0658,
+  "icir": 0.342,
+  "nw_t": 5.19,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.23,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "MOM120",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0621,
+  "icir": -0.311,
+  "nw_t": -4.58,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.38,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "MOM60",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0606,
+  "icir": -0.308,
+  "nw_t": -4.42,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.61,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "QUAD_ASYM",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0371,
+  "icir": -0.307,
+  "nw_t": -4.62,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.52,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "REV20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0563,
+  "icir": 0.299,
+  "nw_t": 4.69,
+  "verdict": "PASS",
+  "disposition": "拒绝-换皮",
+  "dedup_max_rank_corr": 0.84,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "VOL20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0663,
+  "icir": 0.269,
+  "nw_t": 4.04,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.49,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "HLRANGE20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0662,
+  "icir": -0.259,
+  "nw_t": -3.83,
+  "verdict": "PASS",
+  "disposition": "拒绝-换皮",
+  "dedup_max_rank_corr": 0.92,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "OVERNIGHT20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0231,
+  "icir": 0.225,
+  "nw_t": 3.57,
+  "verdict": "观察",
+  "disposition": "观察",
+  "dedup_max_rank_corr": 0.6,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "VOL60",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0599,
+  "icir": 0.223,
+  "nw_t": 3.32,
+  "verdict": "PASS",
+  "disposition": "拒绝-换皮",
+  "dedup_max_rank_corr": 0.79,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "REV5",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0354,
+  "icir": 0.205,
+  "nw_t": 3.4,
+  "verdict": "PASS",
+  "disposition": "入池",
+  "dedup_max_rank_corr": 0.37,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "AMIHUD20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": 0.0366,
+  "icir": 0.188,
+  "nw_t": 2.81,
+  "verdict": "FAIL",
+  "disposition": "拒绝-t不足",
+  "dedup_max_rank_corr": null,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "VWAPDEV20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0307,
+  "icir": -0.177,
+  "nw_t": -2.69,
+  "verdict": "FAIL",
+  "disposition": "拒绝-t不足",
+  "dedup_max_rank_corr": null,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "MOM120_20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0308,
+  "icir": -0.157,
+  "nw_t": -2.34,
+  "verdict": "FAIL",
+  "disposition": "拒绝-t不足",
+  "dedup_max_rank_corr": null,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "CLV20",
+  "stage": "P3_P4_evaluated",
+  "oos_start": "2024-01-01",
+  "ic": -0.0104,
+  "icir": -0.066,
+  "nw_t": -1.0,
+  "verdict": "FAIL",
+  "disposition": "拒绝-不稳定",
+  "dedup_max_rank_corr": null,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed"
+ },
+ {
+  "factor": "COMPOSITE8",
+  "stage": "P6_combo_lite",
+  "verdict": "观察",
+  "q5_ann": 0.1783,
+  "ew_ann": 0.0976,
+  "excess_pp": 8.07,
+  "oos_q5_ann": 0.3381,
+  "oos_ew_ann": 0.2024,
+  "n_trials_total": 15,
+  "code_stamp": "32ecbc1f61ed",
+  "note": "未过五道门/DSR-PBO，不得实盘"
+ },
+ {
+  "factor": "TREE(pruned)",
+  "stage": "model_trial",
+  "verdict": "观察",
+  "best_oos_ic": 0.0714,
+  "composite_oos_ic": 0.0862,
+  "unpruned_oos_ic": 0.0088,
+  "leaves": 9,
+  "top_feat": "SIZE20(0.468)",
+  "n_trials_total": 16,
+  "code_stamp": "32ecbc1f61ed",
+  "note": "剪枝后≈OLS，低于等权合成；全展开树IS IC=1.0/OOS 0.009"
+ },
+ {
+  "stage": "multifactor_strategy",
+  "verdict": "观察",
+  "combos": [
+   "EQ",
+   "ICIR",
+   "TOP4",
+   "noSIZE",
+   "NEUT"
+  ],
+  "best_combo": "ICIR",
+  "sweep": [
+   [
+    "10",
+    0
+   ],
+   [
+    "10",
+    30
+   ],
+   [
+    "10",
+    40
+   ],
+   [
+    "20",
+    0
+   ],
+   [
+    "20",
+    30
+   ],
+   [
+    "20",
+    40
+   ]
+  ],
+  "best": {
+   "top": 0.1,
+   "buffer": 0.3,
+   "ann": 0.1683,
+   "sharpe": 0.63,
+   "dd": -0.425,
+   "oos_ann": 0.26
+  },
+  "baseline_ann": 0.0976,
+  "excess_pp": 7.1,
+  "turnover_per_period": 0.15,
+  "key_finding": "去SIZE20后超额归零(7.97%<9.76%)→超额主要是小市值beta",
+  "n_trials_total": 38,
+  "code_stamp": "32ecbc1f61ed"
+ }
+]
