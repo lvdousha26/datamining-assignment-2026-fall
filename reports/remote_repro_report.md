@@ -64,7 +64,7 @@ X(2616, 5378, 42)
 
 ```bash
 # 1. 本地
-export RHPW='<密码>'
+export RHOST='<服务器IP>' RPORT='<端口>' RUSER='root' RHPW='<密码>'
 python scripts/deploy_v2.py          # 传 271MB 原始行情 + 脚本，15 分钟
 python scripts/train_remote.py prep  # sed 改 ROOT + 自检
 python scripts/train_remote.py feat  # 特征构建，5 分钟
@@ -84,4 +84,5 @@ Python /root/miniconda3/bin/python（3.12）
 包    torch 2.5.1+cu124 / lightgbm 4.7 / pandas 3.1.1 / scipy 1.18 / pyarrow 26 / numpy 2.1.3
 ```
 
-**注意**：DNS 被本地 Clash 劫持，必须用真实 IP `116.136.52.182` 直连，不能用域名。
+**注意**：本机 DNS 会被代理软件（Clash TUN）劫持到 fake-ip，需要用真实 IP 直连。
+真实 IP 通过环境变量 `RHOST` 传入，不写进仓库。
