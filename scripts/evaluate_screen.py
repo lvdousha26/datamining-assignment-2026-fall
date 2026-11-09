@@ -12,8 +12,13 @@
   - 5 日调仓，单边 15bp，换手按 D1 名单更替率计
 """
 import json
+import os
+import sys
 import numpy as np
 import pandas as pd
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from screen_stats import d1_churn  # noqa: E402  名单更替率（只认股票索引 i）
 
 # ---- 运行日志：统一写 logs/，不改变原有输出 ----
 if __name__ == '__main__':
@@ -34,23 +39,17 @@ PPY = 252 / 5
 
 
 def evaluate(pred, tt, ii, tag, q=0.10, step=5):
-    # i 是股票在面板里的列索引，跨日稳定；用它算名单更替（不能用 DataFrame 行索引，
-    # 行索引每天都不一样，会让每期都算成"100% 更替"——2026-11-09 修）
+    # i 是股票在面板里的列索引，跨日稳定；更替率统一交给 screen_stats.d1_churn
+    # （曾经用 DataFrame 行索引算，跨日不重叠 → 每期恒 100%，2026-11-09 修）
     d = pd.DataFrame({'t': tt, 'i': ii, 'p': pred, 'y': Y2[tt, ii]}).dropna()
-    days = np.sort(d['t'].unique())[::step]        # 5 日调仓：只在每 5 个交易日取样
-    rows, prev = [], None
-    for t in days:
+    churn = {t: (n, c) for t, n, c in d1_churn(d, q=q, step=step)}
+    rows = []
+    for t, (n, to) in churn.items():
         gg = d[d['t'] == t]
-        if len(gg) < 200:
-            continue
-        n = max(int(len(gg) * q), 10)
         bot = gg.nsmallest(n, 'p')
         keep = gg.drop(bot.index)
         ex = keep['y'].mean() - gg['y'].mean()
-        cur = set(bot['i'])
-        to = 0.0 if prev is None else len(cur - prev) / n
         rows.append((t, ex, to, n))
-        prev = cur
     r = pd.DataFrame(rows, columns=['t', 'ex', 'to', 'n']).dropna()
     r['net'] = r['ex'] - r['to'] * q * 2 * COST      # 只有被替换的 q 份额产生交易
     ann = (1 + r['net']).prod() ** (PPY / len(r)) - 1
@@ -86,20 +85,14 @@ d = pd.DataFrame({'t': tt, 'i': ii, 'p': pr, 'y': Y2[tt, ii]}).dropna()
 d['yr'] = dates[d['t']].year
 print('分年（Ridge 元模型，年化超额，扣成本）：')
 for y, gg in d.groupby('yr'):
-    days = np.sort(gg['t'].unique())[::5]
-    rows, prev = [], None
-    for t in days:
+    churn = {t: (n, c) for t, n, c in d1_churn(gg, q=0.10, step=5)}
+    rows = []
+    for t, (n, to) in churn.items():
         g = gg[gg['t'] == t]
-        if len(g) < 200:
-            continue
-        n = max(int(len(g) * 0.10), 10)
         b = g.nsmallest(n, 'p')
         keep = g.drop(b.index)
         ex = keep['y'].mean() - g['y'].mean()
-        cur = set(b['i'])
-        to = 0.0 if prev is None else len(cur - prev) / n
         rows.append(ex - to * 0.10 * 2 * COST)
-        prev = cur
     if rows:
         rows = np.array(rows)
         print('  %d: %+6.2f%% /年（%d 期）' % (y, ((1 + rows).prod() ** (PPY / len(rows)) - 1) * 100, len(rows)))

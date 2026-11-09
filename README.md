@@ -13,8 +13,8 @@
 
 ```bash
 pip install -r requirements.txt
-python -m pytest              # 26 个快速测试，3.4 秒
-python -m pytest -m ""        # 31 个（含数据契约），10 秒
+python -m pytest              # 30 个快速测试，3.6 秒
+python -m pytest -m ""        # 35 个（含数据契约），10 秒
 ```
 
 - Python 3.13 / torch 2.7.1+cu118 / CUDA 可用
@@ -24,7 +24,7 @@ python -m pytest -m ""        # 31 个（含数据契约），10 秒
 
 ```
 scripts/        85 个脚本（数据管线 / 训练 / 验证 / 事件研究 / 策略）
-tests/          31 个测试（每个对应一个真实踩过的 bug）
+tests/          35 个测试（每个对应一个真实踩过的 bug）
 reports/        46 份结论报告
 events/         事件研究的事件表
 live/           当期禁买清单
@@ -125,7 +125,7 @@ SVM 日频 / SVM 截面 / 多空组合（封存段 −1.08%）/ 纯多头 top10%
 
 ## 六、工程规范
 
-- **测试**：`tests/` 31 个用例，每个对应一个真实 bug（`tests/README.md` 有清单）
+- **测试**：`tests/` 35 个用例，每个对应一个真实 bug（`tests/README.md` 有清单）
 - **日志**：所有脚本运行写入 `logs/`，含参数、硬件、耗时、状态（`logs/README.md`）
 - **数据字典**：`reports/data_dictionary.csv`，110 个字段
 - **可复现性**：换机器重跑，IC 差 0.0005

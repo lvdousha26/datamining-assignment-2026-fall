@@ -1,6 +1,6 @@
 # 测试
 
-> 2026-11-09 建立｜31 个用例｜全量 10.7 秒
+> 2026-11-09 建立｜35 个用例｜全量 10.2 秒
 
 ## 为什么这么写
 
@@ -18,10 +18,10 @@
 ## 跑
 
 ```bash
-# 默认：只跑快的（26 个，3.4 秒）
+# 默认：只跑快的（30 个，3.6 秒）
 python -m pytest
 
-# 加上全量数据契约（31 个，10.7 秒）
+# 加上全量数据契约（35 个，10.2 秒）
 python -m pytest -m ""
 
 # 只跑慢的
@@ -35,12 +35,13 @@ python -m pytest -k break
 python -m pytest -v
 ```
 
-## 三个文件
+## 四个文件
 
 | 文件 | 内容 | 速度 |
 |---|---|---|
 | `test_logic.py` | 纯逻辑，合成数据，无 IO | 3.4 s |
 | `test_data_contract.py` | 真实面板的契约（形状/有限性/裁剪/标签） | 7 s |
+| `test_screen_turnover.py` | 清单更替率口径（4 个，含变异测试） | 0.04 s |
 | `conftest.py` | fixture：合成行情、真实面板（session 级只加载一次） | — |
 
 ## 覆盖了什么
@@ -74,6 +75,19 @@ python -m pytest -v
 - 数据字典无空白释义、事件表 schema、清单 D1 占比≈10%
 - 关键报告不丢
 - 慢：掩码内全因子有限、`|X| ≤ 4`、Y2 截面均值、Y2 标准差 ∈ (0.04, 0.10)
+
+**口径层（4 个，`test_screen_turnover.py`）**
+
+| 测试 | 对应的坑 |
+|---|---|
+| `test_churn_is_name_based_not_row_based` | 用 DataFrame 行索引算 D1 更替 → 跨日不重叠 → 每期恒 100% |
+| `test_identical_list_has_zero_churn` | 名单完全没变也该是 0%，行索引版本会报 100% |
+| `test_missing_symbol_index_raises` | 少了 `i` 列必须报错，不能悄悄退回行索引 |
+| `test_evaluate_screen_goes_through_d1_churn` | 防止有人把 `set(...index)` 写回脚本 |
+
+这个坑的真实代价：`screen_eval.json` 里换手 97.9%（实际 44%），成本每期多扣 1.7bp，
+年化超额被低估 0.8pp（2024 +4.99% → +5.85%，2025H1 +3.83% → +4.67%）。
+用例做过变异验证：把 `['i']` 改回 `.index`，前两条立刻失败（1.0 vs 0.0）。
 
 ## 已知特性（不是 bug）
 
