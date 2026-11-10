@@ -73,8 +73,8 @@ BASE 目录另有 92 个（策略③及历史实验），合计 **174 个脚本*
 |---|---|---|---|---|
 | A1 | **分类模型**（公告情感 / Jev-like） | ❌ 完全未做 | 8h | 需你定方案 |
 | A2 | **关联规则**（FP-Growth + Apriori 对比 + 敏感性） | ✅ **已完成**：30 条规则五族，Apriori 反超 FP-Growth 9.5 倍 | — | 已交付 |
-| A3 | **聚类三件套**（肘部法 / 轮廓系数 / bootstrap ARI） | ⚠️ 只有 ind_rolling | 1h | 我 |
-| A4 | **SHAP/LIME**（全局 + 3 个样本） | ❌ 未做 | 1h | 我 |
+| A3 | **聚类三件套** | ✅ 已完成：k=4 拐点、ARI@31 只有 0.392 | — | 已交付 |
+| A4 | **SHAP**（全局 + 3 样本） | ✅ 已完成：TreeSHAP 精确值，size/turn5/pos250 前三 | — | 已交付 |
 | A5 | **Notebook**（可一键重跑）或仪表盘 | ❌ 未做 | 1.5h | 我 |
 | A6 | **工程目录**（data/src/notebooks/results/docs + README + requirements + 断言 + 运行日志） | ⚠️ 部分：`tests/` 31 用例 + `logs/` 运行日志已就位，缺目录重组与 requirements | 1h | 我 |
 | A7 | **团队分工表 + 沟通记录** | ⚠️ 模板已就绪（`reports/group_division.md`），姓名与贡献% 待填 | — | **只能你填** |
