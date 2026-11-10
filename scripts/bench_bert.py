@@ -57,10 +57,15 @@ def run_eval(model, loader, dev):
     return float(np.mean(np.array(preds) == np.array(ys))), preds, ys
 
 
-def main(epochs=4, batch=32, lr=3e-5, max_len=128):
+def main(epochs=4, batch=32, lr=3e-5, max_len=128, data_dir=None, tag='bert'):
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
-    tr = pd.read_csv(f'{DIR}/train.csv')
-    ev = pd.read_csv(f'{DIR}/eval.csv')
+    dd = data_dir or DIR
+    tr = pd.read_csv(f'{dd}/train.csv')
+    ev = pd.read_csv(f'{dd}/eval.csv')
+    ycol = 'label' if 'label' in tr.columns else 'lab3'
+    tr = tr.rename(columns={ycol: 'label'})
+    ev = ev.rename(columns={ycol: 'label'})
+    os.makedirs(f'{DIR}/{tag}', exist_ok=True)
     tok = AutoTokenizer.from_pretrained(NAME)
     model = AutoModelForSequenceClassification.from_pretrained(NAME, num_labels=3).to(dev)
     print('%s | 参数量 %.1fM | train %d / eval %d' % (
@@ -98,8 +103,8 @@ def main(epochs=4, batch=32, lr=3e-5, max_len=128):
         print('  → epoch %d eval acc %.4f' % (ep, acc), flush=True)
         if acc > best:
             best, best_pred = acc, pred
-            model.save_pretrained(f'{DIR}/bert')
-            tok.save_pretrained(f'{DIR}/bert')
+            model.save_pretrained(f'{DIR}/{tag}')
+            tok.save_pretrained(f'{DIR}/{tag}')
 
     # 单条延迟（batch=1，含 tokenize）
     model.eval()
@@ -114,9 +119,10 @@ def main(epochs=4, batch=32, lr=3e-5, max_len=128):
 
     out = {'model': NAME, 'acc': best, 'ms': lat, 'epochs': epochs, 'batch': batch,
            'train_s': time.time() - t0, 'params_m': sum(p.numel() for p in model.parameters()) / 1e6}
-    json.dump(out, open(f'{DIR}/bench_bert.json', 'w'), ensure_ascii=False, indent=1)
+    out['data_dir'] = dd
+    json.dump(out, open(f'{DIR}/bench_{tag}.json', 'w'), ensure_ascii=False, indent=1)
     pd.DataFrame({'text': ev.text, 'label': ev.label, 'pred': [LAB[i] for i in best_pred]}).to_csv(
-        f'{DIR}/pred_bert.csv', index=False)
+        f'{DIR}/pred_{tag}.csv', index=False)
     print('\n[BERT] acc %.4f | %.1f ms/条 | 训练 %.0fs' % (best, lat, out['train_s']))
     print('→', f'{DIR}/bench_bert.json')
 
@@ -126,6 +132,8 @@ if __name__ == '__main__':
     ap.add_argument('--epochs', type=int, default=4)
     ap.add_argument('--batch', type=int, default=32)
     ap.add_argument('--lr', type=float, default=3e-5)
+    ap.add_argument('--data-dir', default=None)
+    ap.add_argument('--tag', default='bert')
     a = ap.parse_args()
-    with RunLogger(__file__, tag='bert'):
-        main(a.epochs, a.batch, a.lr)
+    with RunLogger(__file__, tag=a.tag):
+        main(a.epochs, a.batch, a.lr, data_dir=a.data_dir, tag=a.tag)
