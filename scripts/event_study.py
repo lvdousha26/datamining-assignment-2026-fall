@@ -399,7 +399,7 @@ def report(detail, summ, peers_df, mkt_name, windows, out):
              'N<10 时基本没有统计功效，只能当案例。')
     L.append('3. **最后看同侪**：同行业同期也在涨，说明是行业 beta 而非事件效应。')
     L.append('')
-    open(out, 'w', encoding='utf-8').write('\n'.join(L))
+    open(out, 'w', encoding='utf-8', newline='\n').write('\n'.join(L))
 
 
 def plot_car(detail, summ, windows, out):
