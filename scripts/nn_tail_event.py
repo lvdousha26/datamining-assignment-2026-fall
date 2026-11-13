@@ -178,7 +178,9 @@ def train_nn(Xtr, ytr, ttr, etr, str_, Xva, yva, tva, eva, sva, gate=False,
             else:
                 z = m(xb)
             preds.append(z.cpu().numpy())
-    return daily_ic(np.concatenate(preds), yva, tva)
+    p = np.concatenate(preds)
+    ic, icir, nd = daily_ic(p, yva, tva)
+    return ic, icir, nd, p
 
 
 def main():
