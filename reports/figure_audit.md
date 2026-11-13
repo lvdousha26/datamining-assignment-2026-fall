@@ -14,7 +14,7 @@
 | 避免双纵轴 | 禁用 `twinx()`；两个量纲就分两个子图（A1A2 图就是三行子图，不是双轴） |
 | 色盲可读 | Okabe-Ito 8 色板（`PALETTE`），不用 jet/tab10 |
 
-## 二、已规范化（4 张）
+## 二、已规范化（13 张）
 
 | 图 | 状态 | 做了什么 |
 |---|---|---|
@@ -22,18 +22,19 @@
 | `shap_global.png` | ✅ | x 轴改「平均 \|SHAP\| 值（无量纲）」，底部加来源（模型 + 抽样说明） |
 | `tsne_factors.png` | ✅ | 图题中文，底部加来源（3,000 只 × 42 因子、perplexity=30） |
 | `A1A2_v2.png` | ✅ | 纵轴补「累计净值（倍，对数坐标）」+「年份」轴名，底部加来源，并说明「等距=等比例涨跌」 |
+| **9 张事件研究图** | ✅ | `event_study.py` 的 `plot_car()` 接入 figstyle：轴名「事件后窗口（交易日，对数坐标）」「累计超额收益 CAR（%）」，配色换 Okabe-Ito，底部自动写「事件表名 + 事件数 + 基准」 |
 
-## 三、待处理（21 张）
+## 三、待处理（12 张）
 
 | 图 | 生成脚本 | 已知问题 | 优先级 |
 |---|---|---|---|
 | `A1A2_combo.png` | `combine_v2.py` | 同 A1A2_v2，未补来源 | 高（报告主图） |
 | `big_eval.png` | `big_eval.py` | 疑有英文轴、缺来源 | 高 |
 | `factor_scorecard.png` | `factor_scorecard.py` | 42 因子条形图，缺来源 | 高 |
-| `ev_margin.png` / `ev_st_add.png` / `ev_st_remove.png` / `ev_yjyg.png` / `ev_earnings*.png` / `ev_demo_*.png` / `ev_affair.png` | `event_study.py` | 轴为中文但缺来源；`event_study.py` 内联 `plt.savefig`，未接 figstyle | 中（7 张同源，改一处即可） |
+| `ev_affair.png` / `ev_demo_cn.png` / `ev_demo_us.png` / `ev_earnings.png` / `ev_earnings_lag1.png` / `ev_margin.png` / `ev_st_add.png` / `ev_st_remove.png` / `ev_yjyg.png`（9 张） | `event_study.py` | ✅ **已规范化**：统一走 `figstyle.save`，中文轴名带单位、Okabe-Ito 配色、底部数据来源（含事件表名 + 事件数 + 基准） | — |
 | `taa_v3.png` / `regime_rotation.png` / `multifactor_nav.png` / `muon_ab.png` / `svm_*.png` / `macro_switch.png` / `tree_pruning.png` | 各自脚本 | 早期图，未审 | 低（多为"证伪路径"，报告里不主推） |
 
-**最高性价比的一处改动**：`event_study.py` 里有 7 张图都是它画的，接上 `figstyle.save(..., note=...)` 一次能规范 7 张。约 20 分钟。
+**已完成的一处改动**：`event_study.py` 的 `plot_car()` 接上 figstyle，一次性规范了 9 张事件图（比预估的 7 张多两张：`ev_st_add`、`ev_yjyg`）。
 
 ## 四、`combine_v2.py` 与 `A1A2_v2` 的关系
 

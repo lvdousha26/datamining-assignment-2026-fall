@@ -402,18 +402,13 @@ def report(detail, summ, peers_df, mkt_name, windows, out):
     open(out, 'w', encoding='utf-8', newline='\n').write('\n'.join(L))
 
 
-def plot_car(detail, summ, windows, out):
+def plot_car(detail, summ, windows, out, note=None):
+    """画 CAR 衰减 + 安慰剂分布；统一走 figstyle（中文、色盲友好、带数据来源）"""
     try:
         import matplotlib
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
-        from matplotlib import font_manager
-        for fp in ['C:/Windows/Fonts/msyh.ttc', 'C:/Windows/Fonts/simhei.ttf']:
-            if os.path.exists(fp):
-                font_manager.fontManager.addfont(fp)
-                plt.rcParams['font.family'] = font_manager.FontProperties(fname=fp).get_name()
-                break
-        plt.rcParams['axes.unicode_minus'] = False
+        from figstyle import PALETTE, save as _save
     except Exception:
         return
 
@@ -421,11 +416,11 @@ def plot_car(detail, summ, windows, out):
     w = [x for x in windows if f'car{x}' in detail.columns]
     mu = [detail[f'car{x}'].mean() * 100 for x in w]
     med = [detail[f'car{x}'].median() * 100 for x in w]
-    ax[0].plot(w, mu, 'o-', color='#c0392b', label='均值 CAAR')
-    ax[0].plot(w, med, 's--', color='#2980b9', label='中位数')
+    ax[0].plot(w, mu, 'o-', color=PALETTE[1], label='均值 CAAR', lw=1.8)
+    ax[0].plot(w, med, 's--', color=PALETTE[0], label='中位数', lw=1.4)
     ax[0].axhline(0, color='gray', lw=0.8)
     ax[0].set_xscale('log')
-    ax[0].set_xlabel('窗口（交易日，对数轴）')
+    ax[0].set_xlabel('事件后窗口（交易日，对数坐标）')
     ax[0].set_ylabel('累计超额收益 CAR（%）')
     ax[0].set_title(f'CAR 衰减曲线（N={len(detail)}）')
     ax[0].legend()
@@ -433,16 +428,15 @@ def plot_car(detail, summ, windows, out):
 
     p = detail[f'pct{w[-1]}'].dropna() if w else pd.Series(dtype=float)
     if len(p):
-        ax[1].hist(p, bins=np.arange(0, 101, 10), color='#7f8c8d', edgecolor='w')
+        ax[1].hist(p, bins=np.arange(0, 101, 10), color=PALETTE[2], edgecolor='w', alpha=.85)
         ax[1].axvline(50, color='gray', ls='--', lw=1, label='随机基准 50%')
         ax[1].set_xlabel(f'事件 CAR 在自身安慰剂分布中的分位（{w[-1]} 日，%）')
         ax[1].set_ylabel('事件数')
         ax[1].set_title('安慰剂分位分布')
         ax[1].legend()
         ax[1].grid(alpha=.3)
-    plt.tight_layout()
-    plt.savefig(out, dpi=130)
-    plt.close()
+    _save(fig, out, note=note or '数据来源：事件表 + 日收益面板；CAR=(1+个股)/(1+基准)−1，'
+                          '安慰剂 = 该股全部历史同长度窗口')
 
 
 # ---------------------------------------------------------------- 入口
@@ -498,7 +492,12 @@ def main():
         peers_df.to_csv(f'{a.out}_peers.csv', index=False)
 
     report(detail, summ, peers_df, mkt.name, windows, f'{a.out}.md')
-    plot_car(detail, summ, windows, f'{a.out}.png')
+    _src = ('全市场等权（data/big/daily_ret.npz）' if a.market == 'cn'
+            else '纳斯达克指数（data/us 缓存）')
+    plot_car(detail, summ, windows, f'{a.out}.png',
+             note='数据来源：%s 事件表（%d 个事件）+ %s；CAR=(1+个股)/(1+基准)−1，'
+                  '安慰剂 = 该股全部历史同长度窗口，全样本不抽样' % (
+                      os.path.basename(a.events), len(detail), _src))
     print(f'\n已输出：{a.out}.csv / _summary.csv / .md / .png')
     print('\n=== 汇总 ===')
     print(summ.round(4).to_string(index=False))
