@@ -125,21 +125,24 @@ def main():
     fig, ax = plt.subplots(1, 3, figsize=(13.5, 3.8))
     ax[0].plot(KS, [inert[k] for k in KS], 'o-', color='#c0392b')
     ax[0].axvline(k_elbow, ls='--', c='gray', lw=1)
-    ax[0].set_title('肘部法：inertia vs k\n拐点 k=%d' % k_elbow)
-    ax[0].set_xlabel('k'); ax[0].set_ylabel('簇内平方和')
+    ax[0].set_title('肘部法：簇内平方和随聚类数的变化\n拐点 k=%d' % k_elbow)
+    ax[0].set_xlabel('聚类数 k（类）'); ax[0].set_ylabel('簇内平方和（无量纲）')
     ax[1].plot(KS, [sil[k] for k in KS], 'o-', color='#2980b9')
     ax[1].axvline(k_sil, ls='--', c='gray', lw=1)
-    ax[1].set_title('轮廓系数 vs k\n最优 k=%d' % k_sil)
-    ax[1].set_xlabel('k'); ax[1].set_ylabel('silhouette')
+    ax[1].set_title('轮廓系数随聚类数的变化\n最优 k=%d' % k_sil)
+    ax[1].set_xlabel('聚类数 k（类）'); ax[1].set_ylabel('轮廓系数（0~1）')
     ax[2].hist(aris, bins=20, color='#27ae60', alpha=.8)
     ax[2].axvline(aris.mean(), color='k', ls='--', lw=1)
-    ax[2].set_title('bootstrap ARI @k=%d（%d 次）\n均值 %.3f' % (k_sil, N_BOOT, aris.mean()))
-    ax[2].set_xlabel('ARI')
+    ax[2].set_title('Bootstrap 重抽样的 ARI 分布（k=%d，%d 次）\n均值 %.3f' % (k_sil, N_BOOT, aris.mean()))
+    ax[2].set_xlabel('调整兰德指数 ARI（0~1）')
     for a in ax:
         a.grid(alpha=.2)
     plt.tight_layout()
     png = f'{ROOT}/reports/cluster_trio.png'
-    plt.savefig(png, dpi=150)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from figstyle import save as _save
+    _save(fig, png, note='数据来源：data/big/arr.npz（2016-2026，5,342 只 × 42 因子）；样本 2025H1 共 4,914 只；'
+                         '分箱 100 次 bootstrap')
     print('图 →', png)
 
     # ---- 报告 ----

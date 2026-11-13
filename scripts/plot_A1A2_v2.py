@@ -38,6 +38,8 @@ for c, lb in [('EW', '全市场等权（剔次新）'), ('A2', 'A2 质量+估值
                lw=2.2 if c == 'A1' else 1.6, zorder=3 if c == 'A1' else 2)
 ax[0].set_yscale('log')
 ax[0].set_title('A1 单独 vs A2 vs 全市场等权（绝对收益，已扣成本，2016-01~2026-10）', fontsize=13)
+ax[0].set_ylabel('累计净值（倍，对数坐标）', fontsize=11)
+ax[0].set_xlabel('年份', fontsize=10)
 ax[0].legend(loc='upper left', frameon=False)
 ax[0].grid(alpha=.25, ls='--')
 ax[0].yaxis.set_major_formatter(FuncFormatter(lambda v, p: f'{v:.2f}'))
@@ -62,5 +64,9 @@ ax[2].grid(alpha=.25, ls='--', axis='y')
 
 plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei']
 plt.tight_layout()
-plt.savefig(f'{ROOT}/reports/A1A2_v2.png', dpi=140)
+fig.text(0.01, 0.005,
+         '数据来源：data/big/daily_ret.npz（后复权、已剔停牌与复权断层）与 live/screen_*.csv 打分；'
+         '纵轴为对数坐标，等距代表等比例涨跌；回撤按日频净值计算。',
+         fontsize=8, color='#555555')
+plt.savefig(f'{ROOT}/reports/A1A2_v2.png', dpi=140, bbox_inches='tight')
 print('\n已存 reports/A1A2_v2.png')

@@ -117,7 +117,7 @@ SVM 日频 / SVM 截面 / 多空组合（封存段 −1.08%）/ 纯多头 top10%
 | 后复权日线 | 5,446 只 / 533 MB | `python scripts/big_download_hfq.py`（akshare） |
 | 财报 54 期 × 4 表 | 115 MB | `python scripts/big_fin_download.py` |
 | 业绩预告 | 91,126 条 / 54 MB | `python scripts/fetch_yjyg.py` |
-| 申万行业 | 31 / 128 类 | `python scripts/swap_industry.py` |
+| 申万行业 | 面板 128 类 / 评估用 31 类 | `python scripts/swap_industry.py`（口径见 `reports/industry_reconcile.md`） |
 | ST 日历 | 151,170 行 | `python scripts/st_download.py` |
 
 **关键口径**：复权一律用**后复权（hfq）**。东财 A 股前复权是「减法复权」，
@@ -137,7 +137,10 @@ SVM 日频 / SVM 截面 / 多空组合（封存段 −1.08%）/ 纯多头 top10%
 ## 八、限制
 
 1. **封存段已消耗**（一次性验证），新模型无法再验证
-2. 行业中性化用聚类 31 组而非申万 128 类（申万太细，日均 26 只/行业，噪声盖过信号）
+2. **行业口径（2026-11 起有变更，务必区分）**：面板 `arr.npz` 的 `IND` 存**申万二级 128 类**（仅作原始标签追溯）；
+   所有评估与中性化统一读 `ind_map.parquet` 的**申万一级 31 类**（覆盖 97.1%）。
+   分组粒度对模型没有影响——`reports/neutral_switch.md` 里三种分组（申万一级 31 / 聚类 31 / 聚类 4）
+   的中性化都让 5 折 CV 下降 0.4~0.6pp。详见 `reports/industry_reconcile.md`
 3. 减持公告抓不了（接口限流），改用业绩预告
 4. 只有 38 个季度的长线策略，t 值约 2，勉强显著
 

@@ -171,7 +171,9 @@ def part2_tsne(n=3000, seed=0):
         a.set_xticks([]); a.set_yticks([])
     plt.tight_layout()
     png = f'{ROOT}/reports/tsne_factors.png'
-    plt.savefig(png, dpi=150)
+    from figstyle import save as _save
+    _save(fig, png, note='数据来源：data/big/arr.npz 2025H1，随机 3,000 只 × 42 因子；'
+                         't-SNE perplexity=30，KMeans k=4')
     print('  →', png)
     return {'n': int(P.shape[0]), 'png': png}
 

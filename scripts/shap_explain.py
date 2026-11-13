@@ -110,12 +110,14 @@ def main():
     fig, ax = plt.subplots(figsize=(7.2, 6))
     top = order[:15][::-1]
     ax.barh([feats[j] for j in top], imp[top], color='#2c7fb8')
-    ax.set_xlabel('mean |SHAP|（对预测值的平均绝对贡献）')
+    ax.set_xlabel('平均 |SHAP| 值（对预测值的平均绝对贡献，无量纲）')
     ax.set_title('全局重要性 Top 15（LGBM，2025H1 2 万行）')
     ax.grid(axis='x', alpha=.2)
     plt.tight_layout()
     png = f'{ROOT}/reports/shap_global.png'
-    plt.savefig(png, dpi=150)
+    from figstyle import save as _save
+    _save(fig, png, note='数据来源：checkpoints/lgbm_big.txt（best_iter=85）+ data/big/arr.npz，'
+                         '2025H1 随机 20,000 行；SHAP 值由 LightGBM pred_contrib 精确计算')
 
     # ---- 报告 ----
     md = ['# A4 · SHAP 解释（LGBM，TreeSHAP 精确值）', '',

@@ -1,6 +1,6 @@
 # A4 · SHAP 解释（LGBM，TreeSHAP 精确值）
 
-> 2026-11-10｜样本 **20000 行**（2025H1 dev 段）｜模型 `lgbm_big.txt`（best_iter=85）冻结，未重训
+> 2026-11-13｜样本 **20000 行**（2025H1 dev 段）｜模型 `lgbm_big.txt`（best_iter=85）冻结，未重训
 
 ## 0. 方法
 
