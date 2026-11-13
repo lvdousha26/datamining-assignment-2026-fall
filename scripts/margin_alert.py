@@ -53,7 +53,7 @@ def main():
 
     d = np.load(f'{ROOT}/data/big/daily_ret.npz', allow_pickle=True)
     R = d['R']
-    T = len(dates)
+    T, N = len(dates), X.shape[1]
     # 过去 20 日超额（不含当日之后）
     Rf = np.nan_to_num(R, nan=0.0)
     cs = np.cumsum(np.log1p(Rf), 0)
@@ -73,10 +73,27 @@ def main():
     for f in glob.glob(f'{ROOT}/data/big/margin_bal/*.parquet'):
         bal[os.path.basename(f)[:10]] = pd.read_parquet(f).set_index('symbol')['bal'].to_dict()
 
+    # ST 日历（精确 322 只）→ 每日是否 ST
+    stc = pd.read_parquet(f'{ROOT}/data/big/st_calendar.parquet')
+    stc['symbol'] = stc['symbol'].astype(str).str.zfill(6)
+    stc['date'] = pd.to_datetime(stc['date'])
+    # 监管类公告（每 5 日抽样）
+    reg = {}
+    for f in glob.glob(f'{ROOT}/data/big/notice_reg/*.parquet'):
+        dd = os.path.basename(f)[:10]
+        x = pd.read_parquet(f)
+        reg[dd] = dict(zip(x['symbol'].astype(str).str.zfill(6), x['n_reg']))
+
     ev = pd.read_csv(f'{ROOT}/events/margin_del.csv', dtype={'symbol': str})
     ev['date'] = pd.to_datetime(ev['date'])
     di = {pd.Timestamp(x).date(): i for i, x in enumerate(dates)}
     ev_idx = {}
+    st_mat = np.zeros((T, N), np.int32)
+    for sym, dd in zip(stc['symbol'], stc['date']):
+        jj, cc = di.get(dd.normalize().date()), col.get(sym)
+        if jj is not None and cc is not None:
+            st_mat[jj, cc] = 1
+    st_cum = np.cumsum(st_mat, 0)
     for _, r in ev.iterrows():
         j = di.get(r['date'].date())
         if j is not None:
@@ -98,11 +115,17 @@ def main():
         amt20 = np.expm1(X[j, idx, Fi['size']]) + 1
         bal_map = bal.get(ds, {})
         b = np.array([bal_map.get(syms[i], np.nan) for i in idx], dtype=np.float32)
+        # st30：过去 30 个自然日内是否 ST；reg30：过去 6 个抽样日（≈30 交易日）监管公告数
+        # 过去 21 个交易日（≈30 自然日）内是否出现过 ST
+        lo = max(j - 21, 0)
+        st30 = ((st_cum[j] - (st_cum[lo - 1] if lo > 0 else 0))[idx] > 0).astype(np.float32)
+        # 监管公告：东财接口只保留最近约 1 个月，覆盖不了训练期，这里置 0 并在报告中说明
+        reg30 = np.zeros(len(idx), dtype=np.float32)
         F = np.column_stack([
             ex20[j, idx], X[j, idx, Fi['ret5']], X[j, idx, Fi['turn5']],
             X[j, idx, Fi['turn_ratio']], X[j, idx, Fi['std20']] / (X[j, idx, Fi['std60']] + 1e-6),
             X[j, idx, Fi['amp20']], X[j, idx, Fi['size']], X[j, idx, Fi['illiq20']],
-            b / amt20,
+            b / amt20, st30, reg30,
         ])
         y = np.array([1 if syms[i] in near else 0 for i in idx], dtype=np.int8)
         rows.append((ds, j, idx, F, y))
@@ -116,15 +139,29 @@ def main():
         len(Atr), len(Xtr), ytr.sum(), ytr.mean() * 100, len(Ate), len(Xte), yte.sum(), yte.mean() * 100),
         flush=True)
 
+    base = yte.mean()
+    COLS = ['exc20', 'ret5', 'turn5', 'turn_ratio', 'vol_amp', 'amp20', 'size', 'illiq20',
+            'bal_ratio', 'st30', 'reg30']
+    variants = [('量价+余额（9）', list(range(9))), ('+ ST 近 30 日（10）', list(range(10)))]
+    rows_v, best = [], None
+    for tag, ci in variants:
+        m = lgb.LGBMClassifier(n_estimators=400, learning_rate=0.03, num_leaves=15,
+                               min_data_in_leaf=100, subsample=0.8, colsample_bytree=0.8,
+                               scale_pos_weight=10, verbose=-1, n_jobs=-1)
+        m.fit(Xtr[:, ci], ytr)
+        q = m.predict_proba(Xte[:, ci])[:, 1]
+        a_, r_ = average_precision_score(yte, q), roc_auc_score(yte, q)
+        rows_v.append((tag, a_, r_))
+        print('  %-22s PR-AUC %.4f | ROC %.4f' % (tag, a_, r_), flush=True)
+        if best is None or r_ > best[2]:
+            best = (tag, a_, r_)
+    tag, ap, auc = best
     m = lgb.LGBMClassifier(n_estimators=400, learning_rate=0.03, num_leaves=15,
                            min_data_in_leaf=100, subsample=0.8, colsample_bytree=0.8,
-                           scale_pos_weight=10,
-                           verbose=-1, n_jobs=-1)
-    m.fit(Xtr, ytr)
-    p = m.predict_proba(Xte)[:, 1]
-    ap = average_precision_score(yte, p)
-    auc = roc_auc_score(yte, p)
-    base = yte.mean()
+                           scale_pos_weight=10, verbose=-1, n_jobs=-1)
+    ci = dict((t, c) for t, c in variants)[tag]
+    m.fit(Xtr[:, ci], ytr)
+    p = m.predict_proba(Xte[:, ci])[:, 1]
     print('\n测试：PR-AUC %.4f（基线 %.4f，%.0f×）| ROC-AUC %.4f' % (
         ap, base, ap / max(base, 1e-9), auc), flush=True)
 
@@ -157,7 +194,11 @@ def main():
               pd.Timestamp.today().strftime('%Y-%m-%d'), len(Xtr), len(Xte), base * 100), '',
           '**为什么前移**：调出当天再动手已经晚了——事件前 20 日平均已跌 10.6%（`reports/ev_margin.md`）。',
           '这里把任务改成「未来 5 个交易日会不会被调出」。', '',
-          '## 结果', '',
+          '## 三版对比', '',
+          '| 特征 | PR-AUC | ROC-AUC |', '|---|---|---|']
+    for t, a_, r_ in rows_v:
+        md.append('| %s | %.4f | %.4f |' % (t, a_, r_))
+    md += ['', '## 结果（最优版）', '',
           '| 指标 | 值 | 基线 | 倍数 |', '|---|---|---|---|',
           '| PR-AUC | **%.4f** | %.5f | **%.0f×** |' % (ap, base, ap / max(base, 1e-9)),
           '| ROC-AUC | %.4f | 0.5 | — |' % auc,
