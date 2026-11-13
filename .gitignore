@@ -39,6 +39,10 @@ venv/
 Thumbs.db
 desktop.ini
 
+# ===== 外部复现仓库与独立虚拟环境（不入库）=====
+recap/
+recap_venv/
+
 # ===== 临时 =====
 *.tmp
 *.log.bak
