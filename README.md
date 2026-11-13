@@ -157,6 +157,10 @@ SVM 日频 / SVM 截面 / 多空组合（封存段 −1.08%）/ 纯多头 top10%
 - [x] **A3 聚类三件套** —— `cluster_trio.py`：4914 只 × 42 因子画像，肘部拐点 k=4，轮廓最优 k=2（高维下必然单调降），bootstrap ARI **@k=4 = 0.963**、**@k=31 只有 0.392**
       ← 项目现用的 31 组在重抽样下三分之一标签会变，中性化分组的可靠性要打折扣
 - [x] **A4 SHAP** —— `shap_explain.py`，用 LGBM 自带 `pred_contrib`（精确 TreeSHAP，不加依赖）：全局前三 `size` 11.6% / `turn5` 10.3% / `pos250` 7.6%；线性口径给 `illiq_ratio` 36.9% 权重，它在 SHAP 只排第 9（3.4%）——同一条流动性轴的四种切法。3 个样本的局部归因见 `reports/shap_explain.md`
+- [x] **A1 补充：Qwen3-0.6B 两条路线跑完（2026-11-13）** —— SFT 87.9% / 标签 logit 84.6%，
+      都输给 BERT 89.2%，且延迟 244 ms（BERT 6.7 ms）。1.5 GB 权重已下到 `models/Qwen3-0.6B/`（不入库）。
+      卡住的两处：8 G 显存要 batch=2，logit 路线每步做 3 次前向 → 2690 秒才 2 个 epoch；
+      SFT 批量生成必须逐条做（右 padding 会让 decoder 从 pad 接着写）。
 - [x] **A5 Notebook** —— `notebooks/01_pipeline_walkthrough.ipynb`：15 个单元，读产物版 **4.6 秒跑通**（面板自检 → 单因子 IC → 模型元信息 → 5 折 CV → 当期清单），完整重跑命令以注释形式给出（面板 40 分钟 / 训练 25 分钟）
 - [ ] **A6 工程目录重组** —— `tests/`(31) + `logs/` + `requirements.txt` 已就位，缺 `data/ src/ notebooks/ results/` 的标准结构与文档同步
 - [ ] **A7 团队分工表** —— `reports/group_division.md` 模板已写两套方案，姓名与贡献 % 待填（只能本人填）

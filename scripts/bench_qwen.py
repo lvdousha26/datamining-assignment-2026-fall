@@ -20,6 +20,9 @@ import os
 import sys
 import time
 
+import os as _os
+_os.environ.setdefault('PYTORCH_CUDA_ALLOC_CONF', 'expandable_segments:True')
+
 import numpy as np
 import pandas as pd
 import torch
@@ -34,7 +37,7 @@ ROOT = r'D:/quant'
 DIR = f'{ROOT}/runs/laya_yjyg'
 LAB = ['利好', '利空', '中性']
 L2I = {l: i for i, l in enumerate(LAB)}
-MODEL = 'Qwen/Qwen3-0.6B'
+MODEL = r'D:/quant/models/Qwen3-0.6B' if os.path.isdir(r'D:/quant/models/Qwen3-0.6B') else 'Qwen/Qwen3-0.6B'
 
 SYS = '你是A股分析师。只回答一个词：利好、利空或中性。'
 USER = ('下面是A股上市公司业绩预告的原文：\n{text}\n'
@@ -143,7 +146,7 @@ def collate_sft(batch, tok):
     return inp, att, lab
 
 
-def main(mode='logit', epochs=3, batch=4, accum=4, lr=1e-4, max_len=192):
+def main(mode='logit', epochs=3, batch=2, accum=8, lr=1e-4, max_len=192):
     dev = 'cuda'
     tok = AutoTokenizer.from_pretrained(MODEL, trust_remote_code=True)
     if tok.pad_token is None:
@@ -205,18 +208,26 @@ def main(mode='logit', epochs=3, batch=4, accum=4, lr=1e-4, max_len=192):
         model.eval()
         preds, ys = [], []
         with torch.no_grad():
-            for b in dev_dl:
-                inp, att = b[0].to(dev), b[1].to(dev)
-                if mode == 'logit':
+            if mode == 'logit':
+                for b in dev_dl:
+                    inp, att = b[0].to(dev), b[1].to(dev)
                     sc = label_scores(model, inp, att, lab_ids)
                     preds += [LAB[i] for i in sc.argmax(-1).tolist()]
-                else:
-                    outs = model.generate(input_ids=inp, attention_mask=att, max_new_tokens=4,
-                                          do_sample=False, pad_token_id=tok.pad_token_id)
-                    for o in outs:
-                        txt = tok.decode(o[inp.shape[1]:], skip_special_tokens=True)
-                        preds.append(next((l for l in LAB if l in txt), '中性'))
-                ys += [LAB[i] for i in b[2].tolist()]
+                    ys += [LAB[i] for i in b[2].tolist()]
+            else:
+                # 逐条生成：右 padding 会让 decoder 从 pad 位置接着写，批量生成结果不可用
+                for k, (x, lab) in enumerate(zip(ev.text, ev.label)):
+                    pr = build_prompt(tok, x)
+                    ids = tok(pr, add_special_tokens=False, return_tensors='pt').to(dev)
+                    out = model.generate(input_ids=ids['input_ids'],
+                                         attention_mask=ids['attention_mask'],
+                                         max_new_tokens=8, do_sample=False,
+                                         pad_token_id=tok.pad_token_id)
+                    txt = tok.decode(out[0][ids['input_ids'].shape[1]:], skip_special_tokens=True)
+                    hit = next((l for l in LAB if l in txt), '中性')
+                    if k < 3:
+                        print('    sample %d: %r -> %s (真值 %s)' % (k, txt[:30], hit, lab), flush=True)
+                    preds.append(hit); ys.append(lab)
         acc = float(np.mean(np.array(preds) == np.array(ys)))
         print('  → epoch %d eval acc %.4f' % (ep, acc), flush=True)
         if acc > best:
@@ -237,6 +248,11 @@ def main(mode='logit', epochs=3, batch=4, accum=4, lr=1e-4, max_len=192):
         times.append((time.time() - t) * 1000)
     lat = float(np.median(times))
 
+    try:
+        model.save_pretrained(f'{DIR}/qwen_{mode}')
+    except Exception as e:
+        print('保存 adapter 失败:', e)
+
     out = {'model': MODEL, 'mode': mode, 'acc': best, 'ms': lat, 'epochs': epochs,
            'train_s': time.time() - t0, 'lora': 'r8'}
     json.dump(out, open(f'{DIR}/bench_qwen_{mode}.json', 'w'), ensure_ascii=False, indent=1)
@@ -249,8 +265,8 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--mode', default='logit', choices=['logit', 'sft'])
     ap.add_argument('--epochs', type=int, default=3)
-    ap.add_argument('--batch', type=int, default=4)
-    ap.add_argument('--accum', type=int, default=4)
+    ap.add_argument('--batch', type=int, default=2)
+    ap.add_argument('--accum', type=int, default=8)
     ap.add_argument('--lr', type=float, default=1e-4)
     a = ap.parse_args()
     with RunLogger(__file__, tag='qwen_' + a.mode):
