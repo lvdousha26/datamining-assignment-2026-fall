@@ -6,6 +6,7 @@ import numpy as np, pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from figstyle import PALETTE
 plt.rcParams['font.sans-serif'] = ['Microsoft YaHei']
 plt.rcParams['axes.unicode_minus'] = False
 
@@ -86,11 +87,13 @@ for nm, k in MDLS:
 
 # 图
 fig, ax = plt.subplots(1, 2, figsize=(12.8, 4.7))
-for nm, k in MDLS:
+for _ci, (nm, k) in enumerate(MDLS):
     nav = curves[nm][2]
-    ax[0].plot(nav.index, nav.values, lw=1.7, label='%s 夏普%.2f' % (nm, curves[nm][1]))
+    ax[0].plot(nav.index, nav.values, lw=1.7, color=PALETTE[_ci % 8],
+               label='%s 夏普 %.2f' % (nm, curves[nm][1]))
 ax[0].axhline(1, color='#2c3e50', lw=.8, ls='--'); ax[0].legend(frameon=False, fontsize=8.5)
-ax[0].grid(alpha=.25); ax[0].set_title('全市场多空净值（2024+，费 20bp/边）', fontsize=10.5)
+ax[0].grid(alpha=.25); ax[0].set_title('全市场多空净值（2024 年起，费 20bp/边）', fontsize=10.5)
+ax[0].set_xlabel('日期（年）'); ax[0].set_ylabel('多空组合净值（倍）')
 
 # 流动性分层柱状
 lab, hi, lo = [], [], []
@@ -100,10 +103,16 @@ for nm, k in MDLS:
     hi.append(perf(ls_daily(d[d['sz'] >= thr]), '', cost=0.008)[1])
     lo.append(perf(ls_daily(d[d['sz'] < thr]), '', cost=0.008)[1])
 x = np.arange(len(lab))
-ax[1].bar(x - .18, hi, .36, label='高流动性半区', color='#2980b9')
-ax[1].bar(x + .18, lo, .36, label='低流动性半区', color='#c0392b')
+ax[1].bar(x - .18, hi, .36, label='高流动性半区', color=PALETTE[0])
+ax[1].bar(x + .18, lo, .36, label='低流动性半区', color=PALETTE[1])
 ax[1].axhline(0, color='#2c3e50', lw=.8); ax[1].set_xticks(x); ax[1].set_xticklabels(lab)
-ax[1].set_ylabel('多空夏普'); ax[1].legend(frameon=False, fontsize=9); ax[1].grid(alpha=.25, axis='y')
+ax[1].set_ylabel('多空夏普比率（无量纲）'); ax[1].set_xlabel('模型'); ax[1].legend(frameon=False, fontsize=9); ax[1].grid(alpha=.25, axis='y')
 ax[1].set_title('收益来自流动性好的还是差的一半？', fontsize=10.5)
-plt.tight_layout(); plt.savefig(f'{ROOT}/reports/big_eval.png', dpi=135, bbox_inches='tight')
+plt.tight_layout()
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from figstyle import save as _save
+_save(fig, f'{ROOT}/reports/big_eval.png',
+      note='数据来源：data/big/arr.npz（42 因子面板）+ 模型预测，区间 2024-01~2025-06；'
+           '多空 = 每日 top10% 减 bottom10%，5 日非重叠，单边 20bp')
 print('\n图已保存 reports/big_eval.png')
