@@ -28,6 +28,7 @@ import pandas as pd
 from scipy import stats as sps
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score,
                              roc_auc_score)
 from sklearn.model_selection import StratifiedKFold
@@ -84,6 +85,8 @@ def main():
         len(Xtr), ytr.mean() * 100, len(Xva), yva.mean() * 100, Xtr.shape[1]), flush=True)
 
     MODELS = {
+        'NB': (lambda **kw: make_pipeline(StandardScaler(), GaussianNB(**kw)),
+               [dict(var_smoothing=1e-9), dict(var_smoothing=1e-6)]),
         'LR': (lambda **kw: make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000, **kw)),
                [dict(C=0.1), dict(C=1.0)]),
         'RF': (lambda **kw: RandomForestClassifier(n_jobs=-1, random_state=0, **kw),
@@ -98,7 +101,7 @@ def main():
     }
 
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=0)
-    res, fold_scores = [], {}
+    res, fold_scores, probs = [], {}, {}
     for name, (mk, grid) in MODELS.items():
         t0 = time.time()
         best = None
@@ -119,6 +122,7 @@ def main():
         # 全训练集拟合 → 测试段
         m = mk(**best[1]).fit(Xtr, ytr)
         pv = m.predict_proba(Xva)[:, 1]
+        probs[name] = pv
         res.append(dict(model=name, params=json.dumps(best[1], ensure_ascii=False),
                         cv_pr_auc=float(np.mean(ap_list)), cv_pr_std=float(np.std(ap_list)),
                         cv_roc=float(np.mean(auc_list)), cv_f1=float(np.mean(f1_list)),
@@ -163,6 +167,36 @@ def main():
     # 最自信却错的 5 个（漏报：真垫底但预测概率很低）
     worst = err[(err.y == 1)].nsmallest(5, 'p')
 
+    # ---- ROC / PR 曲线 ----
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve, precision_recall_curve
+    from figstyle import PALETTE, source_note
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+    for k, (name, pv) in enumerate(probs.items()):
+        fpr, tpr, _ = roc_curve(yva, pv)
+        pr, rc, _ = precision_recall_curve(yva, pv)
+        ax[0].plot(fpr, tpr, color=PALETTE[k % 8], lw=1.6,
+                   label='%s（AUC %.3f）' % (name, roc_auc_score(yva, pv)))
+        ax[1].plot(rc, pr, color=PALETTE[k % 8], lw=1.6,
+                   label='%s（PR-AUC %.3f）' % (name, average_precision_score(yva, pv)))
+    ax[0].plot([0, 1], [0, 1], 'k--', lw=0.8, alpha=.5)
+    ax[0].set_xlabel('假正率 FPR（0~1）'); ax[0].set_ylabel('真正率 TPR（0~1）')
+    ax[0].set_title('ROC 曲线（测试段，2025H1）')
+    ax[1].axhline(yva.mean(), color='k', ls='--', lw=0.8, alpha=.5,
+                  label='随机基线 %.3f' % yva.mean())
+    ax[1].set_xlabel('召回率 Recall（0~1）'); ax[1].set_ylabel('精确率 Precision（0~1）')
+    ax[1].set_title('PR 曲线（正类仅 10%%）')
+    for a in ax:
+        a.legend(fontsize=8, frameon=False)
+        a.set_xlim(0, 1); a.set_ylim(0, 1.02)
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    source_note(fig, '数据来源：data/big/arr.npz（42 因子，训练 2016-2024 / 测试 2025H1 共 %d 行）；'
+                     '标签 = 未来 5 日超额落入后 20%%' % len(Xva))
+    fig.savefig(f'{ROOT}/reports/cls_roc_pr.png', bbox_inches='tight')
+    plt.close(fig)
+
     md = ['# 分类任务：预测未来 5 日是否落入垫底 20%（避雷）', '',
           '> %s｜训练 %d / 测试 %d｜42 因子｜正类占比 %.1f%%｜**分层 5 折 + 小网格 + 配对 t 检验**' % (
               pd.Timestamp.today().strftime('%Y-%m-%d'), len(Xtr), len(Xva), base_rate * 100), '',
@@ -178,7 +212,8 @@ def main():
     md += ['', '基线（随机猜）= PR-AUC **%.4f**（等于正类占比）。所有模型都显著高于它。' % base_rate, '',
            '**配对 t 检验**（%s vs LR，5 折 PR-AUC）：t = %.2f，p = %.4f → %s' % (
                best_name, t, p, '差异显著' if p < 0.05 else '差异不显著（5 折太少，功效不足）'), '',
-           '## 2. 混淆矩阵（%s，阈值 0.5）' % best_name, '',
+           '![ROC 与 PR 曲线](cls_roc_pr.png)', '',
+          '## 2. 混淆矩阵（%s，阈值 0.5）' % best_name, '',
            '|  | 预测非垫底 | 预测垫底 |', '|---|---|---|',
            '| **实际非垫底** | %d | %d |' % (cm[0, 0], cm[0, 1]),
            '| **实际垫底** | %d | %d |' % (cm[1, 0], cm[1, 1]), '',

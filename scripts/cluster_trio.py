@@ -147,7 +147,8 @@ def main():
 
     # ---- 报告 ----
     top_feats = None
-    lab = base_by_k[k_sil].labels_
+    k_use = k_elbow          # 采用肘部给的 k（见文末「取舍」）
+    lab = base_by_k[k_use].labels_
     cen = pd.DataFrame(P, columns=feats).groupby(lab).mean()
     # 每个簇最突出的 3 个因子（|z| 最大）
     desc = {}
@@ -181,16 +182,39 @@ def main():
           '| k | inertia | silhouette |', '|---|---|---|']
     for k in KS:
         md.append('| %d | %s | %.4f |' % (k, f'{inert[k]:,.0f}', sil[k]))
-    md += ['', '## k=%d 的各簇画像（前 3 个最突出因子）' % k_sil, '',
-           '| 簇 | 只数 | 占比 | 特征 |', '|---|---|---|---|']
+    # 中文命名：按最突出的两个因子给每簇起名
+    CN = {'size': '成交额', 'turn5': '换手', 'turn20': '换手', 'std20': '波动', 'std60': '波动',
+          'illiq20': '低流动性', 'illiq_ratio': '低流动性', 'ret20': '中期涨幅', 'ret60': '中期涨幅',
+          'amp20': '振幅', 'pvcorr20': '量价相关', 'pos250': '年内位置', 'dev20': '偏离均线',
+          'maxret20': '极端涨幅', 'skew20': '偏度', 'mf20': '资金流', 'clv': '收盘位置',
+          'intra20': '日内强度', 'intra5': '日内强度', 'overn5': '隔夜跳空', 'overn20': '隔夜跳空',
+          'volratio': '量比', 'turn_ratio': '换手突变', 'ushadow': '上影', 'lshadow': '下影'}
+    names = {}
     for c in cen.index:
-        md.append('| %d | %d | %.1f%% | %s |' % (c, sizes[c], sizes[c] / len(P) * 100, desc[c]))
+        s_ = cen.loc[c].sort_values(key=np.abs, ascending=False).head(2)
+        parts = ['%s%s' % (CN.get(i, i), '高' if v > 0 else '低') for i, v in s_.items()]
+        names[c] = '·'.join(parts)
+
+    md += ['', '## 采用 k=%d 的各簇画像（自动命名 = 最突出的两个因子）' % k_use, '',
+           '| 簇 | 命名 | 只数 | 占比 | 特征（前 3） |', '|---|---|---|---|---|']
+    for c in cen.index:
+        md.append('| %d | **%s** | %d | %.1f%% | %s |' % (
+            c, names[c], sizes[c], sizes[c] / len(P) * 100, desc[c]))
     md += ['', '## 怎么读这三个数', '',
            '- **ARI 才是关键**。轮廓系数只说明「这次分得开」，ARI 说明「换一批股票还分不分得开」。'
            'ARI < 0.6 意味着聚类结果对样本高度敏感，拿它做中性化分组要打折扣。',
            '- 本项目把聚类 31 组当行业代理，但那 31 组是按**收益相关性**聚的（`ind_rolling.py`），'
            '这里的 k 是按**因子画像**聚的，两个数不冲突，但**不能互相替代**：前者管风险，后者管风格。',
-           '- 轮廓系数在 5000 只、42 维上天然偏低（0.1~0.3 是常态），不要拿它跟二维玩具数据比。', '']
+           '- 轮廓系数在 5000 只、42 维上天然偏低（0.1~0.3 是常态），不要拿它跟二维玩具数据比。', '',
+           '## 取舍：肘部说 4、轮廓说 2，听谁的', '',
+           '两者不一致是常态：轮廓系数偏好**分离度高的小簇**，在 42 维、5000 个点上会一路偏向 k=2；',
+           '肘部看的是**边际收益**（再增加一个簇能省多少簇内平方和），更贴近「分几组够用」。',
+           '**结论：用 k=4**，因为后续用途是「组内去均值的中性化 / 风格分桶」，需要的是可解释的粗分，',
+           '不是统计上最分离的二分；而且 k=4 的 bootstrap ARI 0.963，稳定性远好于 k=31 的 0.392。', '',
+           '## 各簇的用途', '',
+           '- **做中性化的分组**：不建议（`neutral_switch.md` 证明三种分组的中性化都让 CV 下降）；',
+           '- **做风格分桶分析**：可以，用来看「哪一类股票在亏钱」，比如 D1 里若集中在某两簇，说明是风格暴露；',
+           '- **不要**拿它当行业代理：它按因子画像聚，不是按业务分类。', '']
     out = f'{ROOT}/reports/cluster_trio.md'
     open(out, 'w', encoding='utf-8', newline='\n').write('\n'.join(md))
     print('报告 →', out)
