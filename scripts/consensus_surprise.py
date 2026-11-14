@@ -129,6 +129,11 @@ def main():
         if not os.path.exists(f):
             continue
         r = pd.read_parquet(f)
+        # 缓存里个别文件的 date 列被 akshare 写成混合 object（含数组脏值），
+        # 统一转字符串后再 to_datetime，脏值 coerce 成 NaT 直接剔除。
+        r['date'] = pd.to_datetime(r['date'].astype(str), errors='coerce')
+        r['eps26'] = pd.to_numeric(r['eps26'], errors='coerce')
+        r = r[r['date'].notna()]
         r = r[(r['date'] <= e['公告日期']) &
               (r['date'] >= e['公告日期'] - pd.Timedelta(days=LOOKBACK)) &
               r['eps26'].notna()]
