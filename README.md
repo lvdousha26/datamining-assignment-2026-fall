@@ -45,6 +45,11 @@
 **想只看一份文档**：`reports/big_report.md`（全流程主报告）。
 **想快速跑一遍**：见下面第三节，Notebook 版 4.6 秒跑通。
 
+**课程交付物（三份完整文档，均在 `reports/`）**：
+`期末报告_数据挖掘.docx`（学校模板六章）、`研报_全市场A股多因子选股.docx`（机构研报格式）、
+`KDD论文_全市场A股多因子选股.pdf`（ACM sigconf 双栏，源码 `reports/kdd_src/kdd_paper.tex`）。
+详见 `reports/INDEX.md` 第〇节。
+
 ---
 
 ## 一、环境
