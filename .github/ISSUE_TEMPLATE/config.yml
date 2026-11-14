@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 实验报告索引
+    url: https://github.com/lvdousha26/datamining-assignment-2026-fall/blob/main/reports/INDEX.md
+    about: 先查已有结论，避免重复做已被证伪的路径

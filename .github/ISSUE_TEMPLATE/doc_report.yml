@@ -1,0 +1,64 @@
+name: 报告修订（含去 AI 味）
+description: 课程报告、研报、图表的改写与补全
+title: "[docs] "
+labels: ["documentation"]
+body:
+  - type: input
+    id: target
+    attributes:
+      label: 目标文件
+      description: 精确到路径
+      placeholder: "reports/期末报告_数据挖掘.docx"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 修订类型
+      options:
+        - 去 AI 味（句式重写）
+        - 内容补全（缺章节 / 缺数据）
+        - 图表重做
+        - 口径统一（数字打架）
+        - 格式排版
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: 改哪里、不改哪里
+      description: 说明涉及章节，以及必须原样保留的部分（表格 / 数字 / 代码）
+      placeholder: |
+        涉及：三（三）特征工程
+        不动：20 张数据表、全部数字、图题
+    validations:
+      required: true
+
+  - type: textarea
+    id: source
+    attributes:
+      label: 新增数字的来源
+      description: 每个新数字必须能指到脚本、报告或数据文件，不接受估算
+      placeholder: |
+        e.g. Spearman 相关矩阵：抽样 100 万行现算，矩阵存 data/big/factor_corr.npy
+        换机复现：reports/remote_repro_report.md
+
+  - type: textarea
+    id: conflict
+    attributes:
+      label: 口径冲突检查
+      description: 新写入的数字与报告中已有数字是否同一口径？不同则要标注版本
+      placeholder: |
+        换机复现用 11-06 版面板（LGBM 0.1360），主结果用清洗后版本（0.1285）→ 表题标注版本
+
+  - type: checkboxes
+    id: guards
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 改完用 python-docx 复核过：新文本就位、旧文本零残留、表格数量不变
+          required: true
+        - label: 数字没有引入新的口径冲突（或已标注版本差异）
+          required: true

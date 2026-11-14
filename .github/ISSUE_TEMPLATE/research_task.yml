@@ -1,0 +1,72 @@
+name: 研究任务（因子 / 策略 / 验证）
+description: 新因子、新策略或验证方案，开一个可事后结案的题
+title: "[research] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        本项目的硬规矩：**任何新因子必须过 5 折 Purged CV 增量门才算候选**，
+        单因子 IC 正不等于有增量。已被证伪的 8 条路径见 `reports/INDEX.md`，动手前先查。
+
+  - type: input
+    id: hypothesis
+    attributes:
+      label: 假设
+      description: 一句话说清「什么信号 → 什么方向 → 在什么条件下成立」
+      placeholder: "e.g. 涨停封单额占流通市值比高 → 次日跑输，在小市值内更强"
+    validations:
+      required: true
+
+  - type: input
+    id: prior
+    attributes:
+      label: 与现有因子的关系
+      description: 是否可能是已有因子的换皮？预计与哪个因子高相关
+      placeholder: "e.g. 与 turn20 / amt_ratio 可能相关 0.6~0.8"
+
+  - type: textarea
+    id: data
+    attributes:
+      label: 数据与时点
+      description: 数据来源、可用历史长度、t 日收盘能否拿到（防未来函数）
+      placeholder: |
+        来源：东财接口；历史：仅最近 15 个交易日（不足）
+        时点：公告盘后 → 记 t+1 可知
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: 验证方案
+      description: 怎么判定成功或失败，事前写死，不许看到结果再改
+      value: |
+        - 单因子：逐日截面 Spearman IC + 五分位多空（5/20 日）
+        - 增量：5 折 Purged CV，基线 0.1041，配对 t 检验，逐折看方向
+        - 稳健性：控制量价因子后的残差 IC（剔除换皮）
+        - 泄漏：股票列置乱 / 滞后对照
+        - 失败也要留报告
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: 影响范围
+      options:
+        - 只做研究，不改生产面板
+        - 可能入面板（需过增量门 + 重跑全管线）
+        - 可能改禁买清单（需重估三段超额）
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: guards
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 已知封存段已消耗，本任务不会也不能重跑 lockbox
+          required: true
+        - label: 已查 INDEX.md，确认这条路径没被证伪过
+        - label: 预期结论会写进 reports/ 并更新 INDEX

@@ -1,0 +1,72 @@
+name: Bug 报告
+description: 管线、因子、回测或报告口径出了问题
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        提之前先确认两件事：**是否是口径问题**（复权、时点、单位）、**是否在 `reports/INDEX.md` 里已有结论**。
+        本项目的 bug 大多出在数据口径和时间对齐上，不在算法本身。
+
+  - type: textarea
+    id: symptom
+    attributes:
+      label: 现象
+      description: 哪里不对，看到的具体数字是什么（不要写「结果不对」，要写「IC 从 0.10 变成 0.02」）
+      placeholder: |
+        e.g. 5 折 CV 第 3 折 IC 掉到 0.02，其余四折正常
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现方式
+      description: 精确到命令和参数
+      render: bash
+      placeholder: |
+        python scripts/purged_cv.py
+        # 日志：logs/2026xxxx_xxxxxx_purged_cv.log
+    validations:
+      required: true
+
+  - type: input
+    id: impact
+    attributes:
+      label: 影响范围与量级
+      description: 影响多少行样本 / 几个指标 / 是否波及已发布报告的数字
+      placeholder: "e.g. 影响 2016-2018 共 480 个交易日，基准超额虚高约 1.2pp"
+
+  - type: textarea
+    id: suspect
+    attributes:
+      label: 初步判断
+      description: 怀疑哪一段（抓数 / 因子 / 标签 / 验证 / 报告），以及依据
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: 出问题的环节
+      options:
+        - 数据获取
+        - 数据治理（复权 / 停牌 / 缺失 / 异常）
+        - 因子计算
+        - 标签与时间对齐
+        - 模型训练
+        - 验证（CV / 封存段）
+        - 回测与成本
+        - 报告与图表
+        - 不确定
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: guards
+    attributes:
+      label: 提交前确认
+      options:
+        - label: 没有为了排查而重跑封存段（`lockbox_state.json` 的 runs 必须保持 1）
+          required: true
+        - label: 已把运行日志路径贴在上面（`logs/*.log` 或 `*.json`）
+        - label: 已确认不是复权口径问题（本项目一律 hfq）
