@@ -28,6 +28,8 @@
 产出：reports/consensus_surprise.md + .csv；研报缓存 data/big/research/
 """
 import glob
+import io
+import contextlib
 import os
 import sys
 import time
@@ -58,20 +60,29 @@ def fetch_all(codes):
             n_ok += 1
             continue
         d = None
-        for r in range(3):
+        with contextlib.redirect_stderr(io.StringIO()):   # 屏蔽 akshare 内部 tqdm，别把日志刷爆
             try:
                 d = ak.stock_research_report_em(symbol=code)
-                break
+            except KeyError:
+                # akshare 对「无任何研报」的股票抛 KeyError 'infoCode'，属正常无覆盖，
+                # 不要重试（原先 3 次重试 + 4.5s sleep 让每只白等 5 秒）
+                d = pd.DataFrame()
             except Exception:
-                time.sleep(0.5 + r)
+                time.sleep(0.4)
+                try:
+                    d = ak.stock_research_report_em(symbol=code)
+                except Exception:
+                    d = None
         if d is None or len(d) == 0:
+            # 哨兵：无研报的股票也写空文件，断点续跑时不再重复请求
+            pd.DataFrame({'date': [], 'broker': [], 'rating': [], 'eps26': []}).to_parquet(f)
             continue
         keep = d[['日期', '机构', '东财评级', '2026-盈利预测-收益']].copy()
         keep.columns = ['date', 'broker', 'rating', 'eps26']
         keep['date'] = pd.to_datetime(keep['date'])
         keep['eps26'] = pd.to_numeric(keep['eps26'], errors='coerce')
+        keep.to_parquet(f)                              # 有覆盖/无覆盖都落盘
         if keep['eps26'].notna().any():
-            keep.to_parquet(f)
             n_ok += 1
         if (k + 1) % 200 == 0:
             print('  研报 %d/%d（累计 %d 只，%.0fs）' % (k + 1, len(codes), n_ok, time.time() - t0), flush=True)
@@ -149,16 +160,15 @@ def main():
     R, dates = z['R'], pd.to_datetime(pd.Series(z['dates']).astype(str))
     syms = [str(s).zfill(6) for s in z['symbols']]
     sidx = {s: i for i, s in enumerate(syms)}
-    dpos = {d: i for i, d in enumerate(dates)}
 
     def fwd_ret(code, ann, h):
         i = sidx.get(code)
-        t0 = dpos.get(ann)
-        if i is None or t0 is None:
+        t0 = int(dates.searchsorted(ann, side='left'))  # 公告日常非交易日 → 取之后首个交易日
+        if i is None or t0 >= len(dates) - 2:
             return np.nan, np.nan
         sl = slice(t0 + 1, min(t0 + 1 + h, len(dates)))
         r = R[sl, i]
-        if np.isfinite(r).sum() < max(3, h // 3):
+        if len(r) < 3 or np.isfinite(r).sum() < max(3, len(r) // 3):
             return np.nan, np.nan
         # 市场等权：当日全市场均值（只用同窗口）
         m = np.nanmean(R[sl], axis=1)
@@ -192,6 +202,13 @@ def main():
     cross = S.groupby(['ytype', 'surprise_sign'])[f'ex{HORIZONS[1]}'].mean().unstack()
     print('\n预告类型 × surprise符号（ex%d 均值）：' % HORIZONS[1], flush=True)
     print((cross * 100).round(2).to_string(), flush=True)
+    ctab = cross.mul(100).round(2)
+    ctab.columns = ['低于预期' if c < 0 else ('高于预期' if c > 0 else '持平') for c in ctab.columns]
+    ctab_lines = ['| 预告类型 | ' + ' | '.join(ctab.columns) + ' |',
+                  '|---|' + '---|' * len(ctab.columns)]
+    for idx, row in ctab.iterrows():
+        ctab_lines.append('| %s | %s |' % (
+            idx, ' | '.join('%+.2f' % v if np.isfinite(v) else '—' for v in row.values)))
 
     # ---- 图 ----
     fig, ax = new_fig(1, 1, w=8, h=4.2)
@@ -234,7 +251,7 @@ def main():
     for h, (diff, tstat, pv) in tests.items():
         md.append('')
         md.append('**%d 日超额 Q5−Q1 = %+.2f%%（t=%.2f，p=%.3f）**' % (h, 100 * diff, tstat, pv))
-    md += ['', '## 预告类型 × surprise 符号（20 日超额，%）', '', cross.mul(100).round(2).to_markdown(), '',
+    md += ['', '## 预告类型 × surprise 符号（20 日超额，%）', ''] + ctab_lines + ['',
            '## 必须写的三条警示', '',
            '1. **评估窗口是 2026 年（封存段）**：本项目 lockbox 已一次性消耗，本表任何数字都只能作为'
            '**描述性证据**，不能用于模型选股/入库决策；',
