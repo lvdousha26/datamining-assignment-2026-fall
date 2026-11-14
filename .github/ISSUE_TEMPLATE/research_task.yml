@@ -1,6 +1,6 @@
 name: 研究任务（因子 / 策略 / 验证）
 description: 新因子、新策略或验证方案，开一个可事后结案的题
-title: "[research] "
+title: "feat: "
 labels: ["enhancement"]
 body:
   - type: markdown

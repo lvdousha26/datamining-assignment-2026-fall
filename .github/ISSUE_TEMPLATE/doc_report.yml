@@ -1,6 +1,6 @@
 name: 报告修订（含去 AI 味）
 description: 课程报告、研报、图表的改写与补全
-title: "[docs] "
+title: "docs: "
 labels: ["documentation"]
 body:
   - type: input

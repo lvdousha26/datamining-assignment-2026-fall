@@ -1,6 +1,6 @@
 name: Bug 报告
 description: 管线、因子、回测或报告口径出了问题
-title: "[bug] "
+title: "fix: "
 labels: ["bug"]
 body:
   - type: markdown

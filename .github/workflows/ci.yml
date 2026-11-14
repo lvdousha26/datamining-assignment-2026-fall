@@ -43,6 +43,31 @@ jobs:
         run: |
           python -c "import sys; sys.path.insert(0, 'scripts'); import runlog, screen_stats, stack_ridge, event_study; print('scripts import ok')"
 
+  title:
+    name: PR 标题规范
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 校验 Conventional Commits 格式与长度
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          LANG: C.UTF-8   # 让 ${#TITLE} 按字符计数，而不是按字节
+        run: |
+          echo "标题：$TITLE"
+          if [[ ! "$TITLE" =~ ^(feat|fix|docs|ci|chore|refactor|test|perf|data)(\([a-z0-9-]+\))?:[[:space:]].+ ]]; then
+            echo "::error::标题需形如 type(scope): 简述，type 取 feat/fix/docs/ci/chore/refactor/test/perf/data"
+            exit 1
+          fi
+          if [[ "$TITLE" =~ [。.!！？?]$ ]]; then
+            echo "::error::标题结尾不要带标点"
+            exit 1
+          fi
+          if [ "${#TITLE}" -gt 72 ]; then
+            echo "::error::标题 ${#TITLE} 字符，超过 72 上限"
+            exit 1
+          fi
+          echo "标题格式 OK（${#TITLE} 字符）"
+
   release:
     name: 打 tag 发 Release
     if: startsWith(github.ref, 'refs/tags/v')
