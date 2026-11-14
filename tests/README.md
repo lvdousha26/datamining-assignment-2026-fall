@@ -96,6 +96,25 @@ python -m pytest -v
 过滤后子集必然残留偏差。对 rank 训练无实质影响，所以不改管线；
 但测试会盯着它——中位数一旦涨到 5e-3 以上，说明过滤逻辑变了。
 
+## CI（GitHub Actions）
+
+`.github/workflows/ci.yml` 在每次 push / PR 自动跑：
+
+- Python 3.12 与 3.13 双版本矩阵，只装 `requirements-ci.txt`（numpy/pandas/scipy/pytest，不含 torch）
+- CI 上的结果：**23 passed / 7 skipped / 5 deselected**。7 个 skip 是依赖 `data/big/*.npz` 的契约测试
+  （仓库不跟踪 2.5 GB 面板，fixture 自动 skip），5 个 deselected 是 `-m "not slow"`
+- 打 `v*` tag 会额外触发 Release 任务：把 README 与 `reports/` 打包成 zip 挂到 Release
+
+路径不写死：`conftest.py` / `test_data_contract.py` / `test_screen_turnover.py` 的项目根目录
+默认取仓库位置，也可用环境变量 `QUANT_ROOT` 覆盖，Windows 本地与 Linux runner 通用。
+
+本地跑（数据齐时能跑满 30 个）：
+
+```bash
+python -m pytest              # 快速集
+python -m pytest -m ""        # 含慢契约，35 个
+```
+
 ## 加测试的约定
 
 修完一个 bug，就在 `test_logic.py` 里加一条，docstring 写三件事：
