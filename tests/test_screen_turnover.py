@@ -18,6 +18,8 @@ bug 现场
 修法：用股票在面板里的列索引 `i`（跨日稳定），并把逻辑收进 `screen_stats.d1_churn`。
 这三个用例分别盯住：算法本身、失败模式、以及"脚本有没有偷懒绕开这个函数"。
 """
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -67,7 +69,8 @@ def test_missing_symbol_index_raises():
 
 def test_evaluate_screen_goes_through_d1_churn():
     """脚本必须调用这个函数，不能自己再写一遍 set(...index)"""
-    src = open(r'D:/quant/scripts/evaluate_screen.py', encoding='utf-8').read()
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    src = open(os.path.join(root, 'scripts', 'evaluate_screen.py'), encoding='utf-8').read()
     assert 'from screen_stats import d1_churn' in src
     assert 'set(bot.index)' not in src, '2026-11-09 的 bug 又回来了'
     assert 'set(b.index)' not in src, '分年那段的老写法又回来了'

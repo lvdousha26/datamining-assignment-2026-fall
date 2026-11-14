@@ -1,5 +1,7 @@
 # 数据挖掘技术与应用 · 期末报告代码仓库
 
+[![CI](https://github.com/lvdousha26/datamining-assignment-2026-fall/actions/workflows/ci.yml/badge.svg)](https://github.com/lvdousha26/datamining-assignment-2026-fall/actions/workflows/ci.yml)
+
 **题目**：基于全市场 A 股面板的多因子选股模型——从 IC 检验到负向筛选的实证研究
 
 **核心结论**：模型能稳定预测 5 日收益排序（5 折 CV IC **0.1041 ± 0.0094**，五折全正），

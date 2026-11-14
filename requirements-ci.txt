@@ -1,0 +1,6 @@
+# CI 专用依赖（GitHub Actions）
+# 单元测试只用到这些；torch / lightgbm / akshare 体积大且与测试无关，不入 CI
+numpy>=2.4
+pandas>=3.0
+scipy>=1.17
+pytest>=9.0

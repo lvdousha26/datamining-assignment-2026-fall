@@ -10,8 +10,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-ROOT = r'D:/quant'
-sys.path.insert(0, f'{ROOT}/scripts')
+# 项目根目录：默认取本文件上一级，可用环境变量 QUANT_ROOT 覆盖（CI / 换机器不必改代码）
+ROOT = os.environ.get('QUANT_ROOT') or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))
 
 
 # ---------------------------------------------------------------- 合成数据
